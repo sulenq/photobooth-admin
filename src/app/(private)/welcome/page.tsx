@@ -36,7 +36,7 @@ export default function Page() {
         </StackV>
       </StackV>
 
-      <VStack>
+      <VStack py={4}>
         <BrandWatermark />
       </VStack>
     </StackV>
