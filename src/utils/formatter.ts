@@ -1,0 +1,426 @@
+import { getMonthNames } from "@/constants/months";
+import {
+  Type__DateFormat,
+  DateVariant,
+  Translations,
+  Type__TimeFormat,
+  UnitKey,
+} from "@/constants/types";
+import { UOM_FORMATS } from "@/constants/uomFormats";
+import { getWeekdayNames } from "@/constants/weekdays";
+import useUOMFormat from "@/contexts/useUOMFormat";
+import { getStorage } from "@/utils/client";
+import { isValid, parseISO } from "date-fns";
+import { format as formatTz, toZonedTime } from "date-fns-tz";
+import { isDateObject } from "@/utils/date";
+import { getTimezoneOffsetMs, getUserTimezone } from "@/utils/time";
+import { TIME_ZONES } from "@/constants/timezone";
+import { NUMBER_LOCALE } from "@/constants/styles";
+
+export const formatDate = (
+  date: Date | string | null | undefined,
+  t: Translations,
+  options: {
+    variant?: DateVariant;
+    withTime?: boolean;
+    timeFormat?: string; // default HH:mm
+    dateFormat?: Type__DateFormat;
+    timezoneKey?: string;
+  } = {},
+): string => {
+  if (!date) return "";
+
+  const dateFormat = options.dateFormat || getStorage("dateFormat") || "dmy";
+  const timezoneKey = options.timezoneKey || getUserTimezone().key;
+
+  let baseDate: Date;
+
+  if (isDateObject(date)) {
+    baseDate = date as Date;
+  } else if (typeof date === "string") {
+    const s = date as string;
+    const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+    let parsed: Date;
+
+    if (dateOnlyRegex.test(s)) {
+      parsed = new Date(s);
+    } else if (/^\d+$/.test(s)) {
+      // Handle string timestamps (number string)
+      parsed = new Date(Number(s));
+    } else {
+      // Handle ISO strings with/without offset, and other date strings
+      parsed = parseISO(s);
+    }
+
+    if (!isValid(parsed)) {
+      // Fallback untuk string tanggal yang sulit diurai
+      parsed = new Date(s);
+    }
+
+    baseDate = parsed;
+  } else {
+    baseDate = new Date(date as any);
+  }
+
+  if (!isValid(baseDate)) return "";
+
+  const zonedDate = toZonedTime(baseDate, timezoneKey);
+
+  // 'd' = day of month, 'M' = month (1-based), 'yyyy' = year, 'i' = weekday (1=Mon, 7=Sun)
+  const day = parseInt(formatTz(zonedDate, "d", { timeZone: timezoneKey }));
+  const month =
+    parseInt(formatTz(zonedDate, "M", { timeZone: timezoneKey })) - 1; // 0-based
+  const year = parseInt(formatTz(zonedDate, "yyyy", { timeZone: timezoneKey }));
+  const isoWeekday = parseInt(
+    formatTz(zonedDate, "i", { timeZone: timezoneKey }),
+  );
+  // Weekday convertion ISO (1-7) to 0-based (0=Sun, 6=Sat)
+  const weekday = isoWeekday === 7 ? 0 : isoWeekday;
+
+  const monthNames = getMonthNames(t);
+  const monthName = monthNames[month];
+  const shortMonthName = monthName.substring(0, 3);
+
+  const weekdayNames = getWeekdayNames(t);
+  const weekdayName = weekdayNames[weekday];
+  const shortWeekdayName = weekdayName.substring(0, 3);
+
+  const basicVariant = options.variant === "numeric";
+
+  const formatDateString = (
+    yearVal: number,
+    monthOrName: string | number,
+    dayVal: number,
+  ) => {
+    const monthDisplay =
+      typeof monthOrName === "number"
+        ? String(monthOrName + 1)
+        : String(monthOrName);
+
+    switch (dateFormat.toLowerCase()) {
+      case "dmy":
+        return `${dayVal}${basicVariant ? "/" : " "}${monthDisplay}${
+          basicVariant ? "/" : " "
+        }${yearVal}`;
+      case "mdy":
+        return `${monthDisplay}${basicVariant ? "/" : " "}${dayVal}${
+          basicVariant ? "/" : ", "
+        }${yearVal}`;
+      case "ymd":
+        return `${yearVal}${basicVariant ? "/" : " "}${monthDisplay}${
+          basicVariant ? "/" : " "
+        }${dayVal}`;
+      default:
+        return `${dayVal} ${monthDisplay} ${yearVal}`;
+    }
+  };
+
+  let formattedDate: string;
+
+  switch (options.variant) {
+    case "numeric":
+      formattedDate = formatDateString(year, month, day);
+      break;
+    case "day":
+      formattedDate = `${day}`;
+      break;
+    case "month":
+      formattedDate = monthName;
+      break;
+    case "shortMonth":
+      formattedDate = shortMonthName;
+      break;
+    case "year":
+      formattedDate = `${year}`;
+      break;
+    case "shortYear":
+      formattedDate = `${year}`;
+      break;
+    case "dayMonthYear":
+      formattedDate = formatDateString(year, monthName, day);
+      break;
+    case "dayShortMonthYear":
+      formattedDate = formatDateString(year, shortMonthName, day);
+      break;
+    case "monthYear":
+      formattedDate = `${monthName} ${year}`;
+      break;
+    case "shortMonthYear":
+      formattedDate = `${shortMonthName} ${year}`;
+      break;
+    case "dayMonth":
+      formattedDate = `${day} ${monthName}`;
+      break;
+    case "dayShortMonth":
+      formattedDate = `${day} ${shortMonthName}`;
+      break;
+    case "weekday":
+      formattedDate = `${weekdayName}`;
+      break;
+    case "shortWeekday":
+      formattedDate = `${shortWeekdayName}`;
+      break;
+    case "weekdayDayMonthYear":
+      formattedDate = `${weekdayName}, ${formatDateString(
+        year,
+        monthName,
+        day,
+      )}`;
+      break;
+    case "weekdayDayShortMonthYear":
+      formattedDate = `${weekdayName}, ${formatDateString(
+        year,
+        shortMonthName,
+        day,
+      )}`;
+      break;
+    case "shortWeekdayDayMonthYear":
+      formattedDate = `${shortWeekdayName}, ${formatDateString(
+        year,
+        monthName,
+        day,
+      )}`;
+      break;
+    case "shortWeekdayDayShortMonthYear":
+      formattedDate = `${shortWeekdayName}, ${formatDateString(
+        year,
+        shortMonthName,
+        day,
+      )}`;
+      break;
+    default:
+      formattedDate = formatDateString(year, monthName, day);
+      break;
+  }
+
+  if (options.withTime) {
+    if (options.timeFormat) {
+      const timeStr = formatTz(zonedDate, options.timeFormat, {
+        timeZone: timezoneKey,
+      });
+      return `${formattedDate} ${timeStr}`;
+    }
+
+    const hhmmss = formatTz(zonedDate, "HH:mm:ss", {
+      timeZone: timezoneKey,
+    });
+
+    const timeStr = formatTime(hhmmss, {
+      timezoneKey,
+    });
+
+    return `${formattedDate} ${timeStr}`;
+  }
+
+  return formattedDate;
+};
+
+export const formatAbsDate = (
+  date: Date | string | null | undefined,
+  t: Translations,
+  options: Parameters<typeof formatDate>[2] = {},
+): string => {
+  return formatDate(date, t, {
+    timezoneKey: "UTC",
+    ...options,
+  });
+};
+
+export const formatNumber = (
+  numParam: number | string | undefined | null,
+  locale = NUMBER_LOCALE,
+  maxFractionDigits = 4,
+): string => {
+  if (numParam === null || numParam === undefined || numParam === "") return "";
+
+  let num: number;
+
+  if (typeof numParam === "string") {
+    const normalized = numParam.replace(/\./g, "").replace(",", ".");
+    num = Number(normalized);
+    if (isNaN(num)) return "-";
+  } else {
+    num = numParam;
+  }
+
+  const isInteger = Number.isInteger(num);
+
+  return num.toLocaleString(locale, {
+    minimumFractionDigits: isInteger ? 0 : 0,
+    maximumFractionDigits: isInteger ? 0 : maxFractionDigits,
+  });
+};
+
+export const formatBytes = (bytes?: number | null) => {
+  if (!bytes) return "-";
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "kB", "MB", "GB", "TB", "PB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return Math.ceil(bytes / Math.pow(k, i)) + " " + sizes[i];
+};
+
+export const formatCount = (number: number): string => {
+  const units = ["", "K", "Jt", "Ml", "Tr", "P", "E"];
+  let index = 0;
+
+  while (number >= 1000 && index < units.length - 1) {
+    number /= 1000;
+    index++;
+  }
+
+  return `${number}${units[index]}`;
+};
+
+export const formatDBTableName = (str: string): string => {
+  return str.toLowerCase().replace(/\s+/g, "_");
+};
+
+export const formatTime = (
+  time?: string | null,
+  options: {
+    showSeconds?: boolean;
+    timeFormat?: Type__TimeFormat;
+    timezoneKey?: string;
+    withSuffix?: boolean;
+    showAbbr?: boolean;
+  } = {},
+): string => {
+  if (!time) return "";
+
+  const timeFormat =
+    options.timeFormat || getStorage("timeFormat") || "24-hour";
+  const timezoneKey = options.timezoneKey || "UTC";
+
+  // get timezone offset
+  const offsetMs = getTimezoneOffsetMs(timezoneKey);
+  const offsetHours = offsetMs / (1000 * 60 * 60);
+
+  const [hhNum, mm, ss = 0] = time.split(":").map(Number);
+  let hh = hhNum + offsetHours;
+
+  if (hh >= 24) hh -= 24;
+  if (hh < 0) hh += 24;
+
+  let formattedTime: string;
+  if (timeFormat === "12-hour") {
+    const suffix = hh >= 12 ? "PM" : "AM";
+    const hour12 = hh % 12 || 12;
+    formattedTime = `${hour12}:${String(mm).padStart(2, "0")}`;
+
+    if (options.showSeconds) {
+      formattedTime += `:${String(ss).padStart(2, "0")}`;
+    }
+
+    const withSuffix = options.withSuffix ?? true;
+    if (withSuffix) formattedTime += ` ${suffix}`;
+  } else {
+    formattedTime = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+
+    if (options.showSeconds) {
+      formattedTime += `:${String(ss).padStart(2, "0")}`;
+    }
+  }
+
+  if (options.showAbbr) {
+    const tz = TIME_ZONES.find((t) => t.key === timezoneKey);
+    if (tz?.localAbbr) {
+      formattedTime += ` ${tz.localAbbr}`;
+    }
+  }
+
+  return formattedTime;
+};
+
+export const formatDuration = (
+  seconds: number | undefined,
+  t: Translations,
+  format: "long" | "short" | "digital" = "short",
+): string => {
+  if (!seconds) return "0 s";
+
+  switch (format) {
+    case "long": {
+      const hour = Math.floor(seconds / 3600);
+      const minute = Math.floor((seconds % 3600) / 60);
+      const second = seconds % 60;
+
+      let result = "";
+      if (hour > 0) result += `${hour} ${t.hour.toLowerCase()}`;
+      if (minute > 0) result += ` ${minute} ${t.minute.toLowerCase()}`;
+      if (second > 0) result += ` ${second} ${t.second.toLowerCase()}`;
+
+      return result.trim();
+    }
+
+    case "short": {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = seconds % 60;
+
+      const formattedHours =
+        hours > 0 ? `${String(hours).padStart(2, "0")}h` : "";
+      const formattedMinutes =
+        minutes > 0 ? `${String(minutes).padStart(2, "0")}m` : "";
+      const formattedSeconds =
+        remainingSeconds > 0
+          ? `${String(remainingSeconds).padStart(2, "0")}s`
+          : "";
+
+      return [formattedHours, formattedMinutes, formattedSeconds]
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    case "digital": {
+      const absSeconds = Math.ceil(seconds);
+      const hours = Math.floor(Math.abs(absSeconds) / 3600);
+      const minutes = Math.floor((Math.abs(absSeconds) % 3600) / 60);
+      const remainingSeconds = Math.abs(absSeconds) % 60;
+
+      const formattedTime = [hours, minutes, remainingSeconds]
+        .map((value) => String(value).padStart(2, "0"))
+        .join(":");
+
+      return absSeconds < 0 ? `-${formattedTime}` : formattedTime;
+    }
+
+    default:
+      return "-";
+  }
+};
+
+export const formatUOM = (
+  value: number | string | null | undefined,
+  unit: UnitKey,
+  options?: Intl.NumberFormatOptions & { compact?: boolean },
+) => {
+  if (value === null || value === undefined || value === "") return "-";
+
+  const key = useUOMFormat.getState().UOM;
+  const format = UOM_FORMATS.find((f) => f.key === key) ?? UOM_FORMATS[0];
+  const unitLabel = format.units[unit];
+
+  // normalize number
+  let num: number;
+  if (typeof value === "string") {
+    const normalized = value.replace(/\./g, "").replace(",", ".");
+    num = Number(normalized);
+    if (isNaN(num)) return "-";
+  } else {
+    num = value;
+  }
+
+  const formatted = new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: 4,
+    notation: options?.compact ? "compact" : "standard",
+    ...options,
+  }).format(num);
+
+  const noSpaceUnits = ["°C", "°F", "K", "°", "rad"];
+  return noSpaceUnits.includes(unitLabel)
+    ? `${formatted}${unitLabel}`
+    : `${formatted} ${unitLabel}`;
+};
