@@ -47,7 +47,7 @@ import { capitalize, pluckString } from "@/utils/string";
 import { getActiveNavs, imgUrl } from "@/utils/url";
 import { HStack } from "@chakra-ui/react";
 import { useFormik } from "formik";
-import { EditIcon, PlusIcon, TrashIcon, UndoIcon } from "lucide-react";
+import { EditIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import * as yup from "yup";
@@ -401,72 +401,72 @@ const Update = (props: UpdateProps) => {
 
 // -----------------------------------------------------------------
 
-const Restore = (props: any) => {
-  const ID = `${PREFIX_ID}_restore`;
+// const Restore = (props: any) => {
+//   const ID = `${PREFIX_ID}_restore`;
 
-  // Props
-  const { restoreIds, clearSelectedRows, disabled, routeTitle } = props;
+//   // Props
+//   const { restoreIds, clearSelectedRows, disabled, routeTitle } = props;
 
-  // Contexts
-  const { t } = useLocale();
-  const setRt = useRenderTrigger((s) => s.setRt);
+//   // Contexts
+//   const { t } = useLocale();
+//   const setRt = useRenderTrigger((s) => s.setRt);
 
-  // Hooks
-  const { req, loading } = useRequest({
-    id: ID,
-    loadingMessage: {
-      title: capitalize(`${t.restore} ${routeTitle}`),
-    },
-    successMessage: {
-      title: capitalize(`${t.restore} ${routeTitle} ${t.successful}`),
-    },
-  });
+//   // Hooks
+//   const { req, loading } = useRequest({
+//     id: ID,
+//     loadingMessage: {
+//       title: capitalize(`${t.restore} ${routeTitle}`),
+//     },
+//     successMessage: {
+//       title: capitalize(`${t.restore} ${routeTitle} ${t.successful}`),
+//     },
+//   });
 
-  // Utils
-  function onActivate() {
-    back();
-    req({
-      config: {
-        url: `${BASE_ENDPOINT}/restore`,
-        method: "PATCH",
-        data: {
-          restoreIds: restoreIds,
-        },
-      },
-      onResolve: {
-        onSuccess: () => {
-          setRt((ps) => !ps);
-          clearSelectedRows?.();
-        },
-      },
-    });
-  }
+//   // Utils
+//   function onActivate() {
+//     back();
+//     req({
+//       config: {
+//         url: `${BASE_ENDPOINT}/restore`,
+//         method: "PATCH",
+//         data: {
+//           restoreIds: restoreIds,
+//         },
+//       },
+//       onResolve: {
+//         onSuccess: () => {
+//           setRt((ps) => !ps);
+//           clearSelectedRows?.();
+//         },
+//       },
+//     });
+//   }
 
-  return (
-    <Confirmation.Trigger
-      w={"full"}
-      id={`${ID}-${restoreIds}`}
-      title={`${t.restore} ${routeTitle}`}
-      description={t.msg_activate}
-      confirmLabel={`${t.restore}`}
-      onConfirm={onActivate}
-      loading={loading}
-      disabled={disabled}
-    >
-      <Tooltip
-        content={t.restore}
-        positioning={{
-          placement: "right",
-        }}
-      >
-        <Menu.Item value={"restore"} disabled={disabled}>
-          <AppIconLucide icon={UndoIcon} />
-          {t.restore}
-        </Menu.Item>
-      </Tooltip>
-    </Confirmation.Trigger>
-  );
-};
+//   return (
+//     <Confirmation.Trigger
+//       w={"full"}
+//       id={`${ID}-${restoreIds}`}
+//       title={`${t.restore} ${routeTitle}`}
+//       description={t.msg_activate}
+//       confirmLabel={`${t.restore}`}
+//       onConfirm={onActivate}
+//       loading={loading}
+//       disabled={disabled}
+//     >
+//       <Tooltip
+//         content={t.restore}
+//         positioning={{
+//           placement: "right",
+//         }}
+//       >
+//         <Menu.Item value={"restore"} disabled={disabled}>
+//           <AppIconLucide icon={UndoIcon} />
+//           {t.restore}
+//         </Menu.Item>
+//       </Tooltip>
+//     </Confirmation.Trigger>
+//   );
+// };
 
 // -----------------------------------------------------------------
 
@@ -690,15 +690,15 @@ const Data = (props: DataProps) => {
       (row) => ({
         override: <Update data={row.data} routeTitle={routeTitle} />,
       }),
-      (row) => ({
-        override: (
-          <Restore
-            restoreIds={[row.data.id]}
-            disabled={!row.data.deletedAt}
-            routeTitle={routeTitle}
-          />
-        ),
-      }),
+      // (row) => ({
+      //   override: (
+      //     <Restore
+      //       restoreIds={[row.data.id]}
+      //       disabled={!row.data.deletedAt}
+      //       routeTitle={routeTitle}
+      //     />
+      //   ),
+      // }),
       (row) => ({
         override: (
           <Delete
@@ -710,21 +710,21 @@ const Data = (props: DataProps) => {
       }),
     ] as RowOptionsTableOptionGenerator<DataInterface>[],
     batchOptions: [
-      (ids, { clearSelectedRows }) => ({
-        override: (
-          <Restore
-            restoreIds={ids}
-            clearSelectedRows={clearSelectedRows}
-            disabled={
-              isEmptyArray(ids) ||
-              data
-                ?.filter((item) => ids.includes(item.id))
-                .some((item) => !item.deletedAt)
-            }
-            routeTitle={routeTitle}
-          />
-        ),
-      }),
+      // (ids, { clearSelectedRows }) => ({
+      //   override: (
+      //     <Restore
+      //       restoreIds={ids}
+      //       clearSelectedRows={clearSelectedRows}
+      //       disabled={
+      //         isEmptyArray(ids) ||
+      //         data
+      //           ?.filter((item) => ids.includes(item.id))
+      //           .some((item) => !item.deletedAt)
+      //       }
+      //       routeTitle={routeTitle}
+      //     />
+      //   ),
+      // }),
       (ids, { clearSelectedRows }) => ({
         override: (
           <Delete
