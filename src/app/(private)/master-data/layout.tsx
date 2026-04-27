@@ -63,7 +63,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             <View.Header
               withTitle
-              title={t.settings}
+              title={"Master Data"}
               px={isSmContainer ? "6px" : R_SPACING_MD}
             />
 

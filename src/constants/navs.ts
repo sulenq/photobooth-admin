@@ -1,7 +1,5 @@
 import { Interface__NavGroup } from "@/constants/interfaces";
 import {
-  ActivityIcon,
-  BlocksIcon,
   BrushIcon,
   ChartPieIcon,
   DatabaseIcon,
@@ -15,6 +13,7 @@ import {
   TimerIcon,
   UserCogIcon,
   UserIcon,
+  UserKeyIcon,
 } from "lucide-react";
 
 export const PRIVATE_NAV_GROUPS: Interface__NavGroup[] = [
@@ -72,19 +71,20 @@ export const OTHER_PRIVATE_NAV_GROUPS: Interface__NavGroup[] = [
         allowedRoles: [],
         children: [
           {
+            label: "User",
             labelKey: "master_data_navs.hr.index",
             navs: [
               {
                 icon: UserCogIcon,
-                label: "Role",
+                label: "User Role",
                 path: `/master-data/role`,
                 allowedRoles: [],
                 backPath: `/master-data`,
               },
               {
-                icon: UserCogIcon,
-                label: "Permission",
-                path: `/master-data/permission`,
+                icon: UserKeyIcon,
+                label: "User Permission",
+                path: `/master-data/user-permission`,
                 allowedRoles: [],
                 backPath: `/master-data`,
               },
@@ -131,25 +131,25 @@ export const OTHER_PRIVATE_NAV_GROUPS: Interface__NavGroup[] = [
               },
             ],
           },
-          {
-            labelKey: "settings_navs.system.index",
-            navs: [
-              {
-                icon: BlocksIcon,
-                labelKey: "settings_navs.system.integration",
-                path: `/settings/integration`,
-                allowedRoles: [],
-                backPath: `/settings`,
-              },
-              {
-                icon: ActivityIcon,
-                labelKey: "settings_navs.system.activity_log",
-                path: `/settings/activity-log`,
-                allowedRoles: [],
-                backPath: `/settings`,
-              },
-            ],
-          },
+          // {
+          //   labelKey: "settings_navs.system.index",
+          //   navs: [
+          //     {
+          //       icon: BlocksIcon,
+          //       labelKey: "settings_navs.system.integration",
+          //       path: `/settings/integration`,
+          //       allowedRoles: [],
+          //       backPath: `/settings`,
+          //     },
+          //     {
+          //       icon: ActivityIcon,
+          //       labelKey: "settings_navs.system.activity_log",
+          //       path: `/settings/activity-log`,
+          //       allowedRoles: [],
+          //       backPath: `/settings`,
+          //     },
+          //   ],
+          // },
         ],
       },
     ],

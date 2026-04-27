@@ -8,7 +8,6 @@ import { P } from "@/components/ui/p";
 import { StackH, StackV } from "@/components/ui/stack";
 import { AppIconLucide } from "@/components/widgets/app-icon";
 import { Clock } from "@/components/widgets/clock";
-import { ScrollH } from "@/components/widgets/scroll-h";
 import { BottomIndicator, LeftIndicator } from "@/components/widgets/indicator";
 import { Logo } from "@/components/widgets/logo";
 import { MContainerV } from "@/components/widgets/m-container";
@@ -19,6 +18,7 @@ import {
   UserPanel,
 } from "@/components/widgets/navs";
 import { ProfileMenuTrigger } from "@/components/widgets/profile-menu";
+import { ScrollH } from "@/components/widgets/scroll-h";
 import { Today } from "@/components/widgets/today";
 import { NavBreadcrumb, TopBar, View } from "@/components/widgets/view";
 import { APP } from "@/constants/_meta";
@@ -38,7 +38,6 @@ import {
   MOBILE_POPOVER_MAIN_AXIS,
   R_SPACING_MD,
   TOP_BAR_H,
-  USER_PANEL_H,
 } from "@/constants/styles";
 import { useLocale } from "@/contexts/useLocale";
 import useNavs from "@/contexts/useNavs";
@@ -404,11 +403,12 @@ const DesktopLayout = (props: any) => {
                 flex={1}
                 px={R_SPACING_MD}
                 pt={R_SPACING_MD}
-                pb={
-                  isNavsExpanded
-                    ? `calc(${USER_PANEL_H} + (${DESKTOP_SPACING_MD} * 1))`
-                    : `calc(36px + (${DESKTOP_SPACING_MD} * 2))`
-                }
+                // pb={
+                //   isNavsExpanded
+                //     ? `calc(${USER_PANEL_H} + (${DESKTOP_SPACING_MD} * 1))`
+                //     : `calc(36px + (${DESKTOP_SPACING_MD} * 2))`
+                // }
+                pb={`calc(48px + (${DESKTOP_SPACING_MD} * 2))`}
                 mb={GAP}
                 transition={"200ms"}
               >

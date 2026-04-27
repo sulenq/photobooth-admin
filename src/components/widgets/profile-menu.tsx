@@ -30,8 +30,6 @@ import { pluckString } from "@/utils/string";
 import { imgUrl } from "@/utils/url";
 import { Icon, PopoverRootProps, Stack, StackProps } from "@chakra-ui/react";
 import {
-  BellIcon,
-  CircleCheckBigIcon,
   EclipseIcon,
   LogOutIcon,
   SettingsIcon,
@@ -139,7 +137,8 @@ export const ProfileMenu = (props: ProfileMenuProps) => {
         />
 
         <StackV borderColor={"border.muted"}>
-          <P fontWeight={"medium"}>{user?.name || "Signed out"}</P>
+          <P fontWeight={"medium"}>{user?.name || "-"}</P>
+
           <ClampText color={"fg.subtle"}>
             {user?.email || user?.username || "-"}
           </ClampText>
@@ -170,7 +169,7 @@ export const ProfileMenu = (props: ProfileMenuProps) => {
           </Btn>
         )}
 
-        <Btn
+        {/* <Btn
           clicky={false}
           px={2}
           variant={"ghost"}
@@ -179,6 +178,7 @@ export const ProfileMenu = (props: ProfileMenuProps) => {
           onClick={() => {
             handleClose?.();
           }}
+          disabled
         >
           <AppIconLucide icon={CircleCheckBigIcon} />
           Todo list
@@ -193,11 +193,12 @@ export const ProfileMenu = (props: ProfileMenuProps) => {
           onClick={() => {
             handleClose?.();
           }}
+          disabled
         >
           <AppIconLucide icon={BellIcon} />
 
           {t.notification}
-        </Btn>
+        </Btn> */}
 
         {MENUS.map((menu) => {
           return (

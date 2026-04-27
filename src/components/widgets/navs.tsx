@@ -2,7 +2,6 @@ import { Accordion } from "@/components/ui/accordion";
 import { Avatar } from "@/components/ui/avatar";
 import { Btn } from "@/components/ui/btn";
 import { CContainer } from "@/components/ui/c-container";
-import { ColorModeButton } from "@/components/ui/color-mode";
 import { Menu } from "@/components/ui/menu";
 import { NavLink, NavLinkProps } from "@/components/ui/nav-link";
 import { P } from "@/components/ui/p";
@@ -36,13 +35,7 @@ import { pluckString } from "@/utils/string";
 import { imgUrl } from "@/utils/url";
 import { Box, Center, HStack, Icon, StackProps } from "@chakra-ui/react";
 import { IconCircleFilled } from "@tabler/icons-react";
-import {
-  BellIcon,
-  CircleCheckBigIcon,
-  EllipsisVerticalIcon,
-  SettingsIcon,
-  UserIcon,
-} from "lucide-react";
+import { EllipsisVerticalIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Fragment } from "react";
 
@@ -122,7 +115,8 @@ export const DesktopNavs = (props: DesktopNavsProps) => {
                     visibility={navsExpanded ? "visible" : "hidden"}
                     ml={1}
                   >
-                    {pluckString(t, navItem.labelKey).toUpperCase()}
+                    {navItem.label?.toUpperCase() ||
+                      pluckString(t, navItem.labelKey).toUpperCase()}
                   </ClampText>
                 )}
 
@@ -594,15 +588,15 @@ export const UserPanel = (props: UserPanelProps) => {
       overflow={"clip"}
     >
       {/* Quick actions */}
-      {navsExpanded && (
+      {/* {navsExpanded && (
         <StackH justify={"space-between"} gap={R_SPACING_MD} p={R_SPACING_MD}>
           <ColorModeButton variant={"outline"} />
 
-          <Btn iconButton clicky={false} variant={"outline"}>
+          <Btn iconButton clicky={false} variant={"outline"} disabled>
             <AppIconLucide icon={CircleCheckBigIcon} />
           </Btn>
 
-          <Btn iconButton clicky={false} variant={"outline"}>
+          <Btn iconButton clicky={false} variant={"outline"} disabled>
             <AppIconLucide icon={BellIcon} />
           </Btn>
 
@@ -618,7 +612,7 @@ export const UserPanel = (props: UserPanelProps) => {
             </Btn>
           </NavLink>
         </StackH>
-      )}
+      )} */}
 
       {/* User */}
       <StackH
@@ -668,11 +662,11 @@ export const UserPanel = (props: UserPanelProps) => {
           <>
             <CContainer>
               <P lineClamp={1} fontWeight={"medium"}>
-                {user?.name || user?.email || "Signed out"}
+                {user?.name || user?.email || "-"}
               </P>
 
               <P lineClamp={1} color={"fg.subtle"}>
-                {user?.name ? user?.email || user?.username : "-"}
+                {user?.email || user?.username || "-"}
               </P>
             </CContainer>
 
