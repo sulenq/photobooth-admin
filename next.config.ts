@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "api.retropis.com",
+        hostname: "api.retroppies.com",
         pathname: "/**",
       },
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },

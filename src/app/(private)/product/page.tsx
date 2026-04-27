@@ -1,32 +1,37 @@
 "use client";
 
-import { Btn } from "@/components/ui/btn";
+import { Btn, BtnProps } from "@/components/ui/btn";
 import { CContainer } from "@/components/ui/c-container";
+import { Field, FieldsetRoot } from "@/components/ui/field";
+import { Img } from "@/components/ui/img";
+import { ImgInput } from "@/components/ui/img-input";
 import { Menu } from "@/components/ui/menu";
-import { P } from "@/components/ui/p";
+import { NumInput } from "@/components/ui/number-input";
 import { SearchInput } from "@/components/ui/search-input";
 import { TableSkeleton } from "@/components/ui/skeleton";
+import { StringInput } from "@/components/ui/string-input";
 import { Tooltip } from "@/components/ui/tooltip";
 import { AppIconLucide } from "@/components/widgets/app-icon";
+import { BackButton } from "@/components/widgets/back-button";
 import { Confirmation } from "@/components/widgets/confirmation";
 import { DataDisplayToggle } from "@/components/widgets/data-display-toggle";
 import { DataGrid } from "@/components/widgets/data-grid";
 import { DataTable } from "@/components/widgets/data-table";
 import FeedbackNoData from "@/components/widgets/feedback-no-data";
 import FeedbackRetry from "@/components/widgets/feedback-retry";
-import { ScrollH } from "@/components/widgets/scroll-h";
-import { LucideIcon } from "@/components/widgets/icon";
+import { ImgViewer } from "@/components/widgets/img-viewer";
 import { Item } from "@/components/widgets/item";
-import { MiniUser } from "@/components/widgets/mini-user";
+import { ScrollH } from "@/components/widgets/scroll-h";
 import { SimpleDisclosure } from "@/components/widgets/simple-disclosure";
 import { View, useViewContext } from "@/components/widgets/view";
-import { dummyUsers } from "@/constants/dummyData";
+import { DUMMY_PRODUCTS } from "@/constants/dummyData";
 import {
   BatchOptionsTableOptionGenerator,
-  DataProps,
+  DataConfig,
+  Product,
   RowOptionsTableOptionGenerator,
 } from "@/constants/interfaces";
-import { BASE_ICON_BOX_SIZE, GAP, R_SPACING_MD } from "@/constants/styles";
+import { GAP, R_SPACING_MD } from "@/constants/styles";
 import { useDataDisplay } from "@/contexts/useDataDisplay";
 import { useLocale } from "@/contexts/useLocale";
 import useRenderTrigger from "@/contexts/useRenderTrigger";
@@ -37,86 +42,199 @@ import { useRequest } from "@/hooks/useRequest";
 import { isEmptyArray, last } from "@/utils/array";
 import { back } from "@/utils/client";
 import { disclosureId } from "@/utils/disclosure";
-import { formatDate } from "@/utils/formatter";
+import { formatDate, formatNumber } from "@/utils/formatter";
 import { capitalize, pluckString } from "@/utils/string";
 import { getActiveNavs, imgUrl } from "@/utils/url";
-import { HStack, Icon } from "@chakra-ui/react";
+import { HStack } from "@chakra-ui/react";
 import { useFormik } from "formik";
-import {
-  ArrowDownAz,
-  EditIcon,
-  ListFilterIcon,
-  PlusIcon,
-  TrashIcon,
-  UndoIcon,
-} from "lucide-react";
+import { EditIcon, PlusIcon, TrashIcon, UndoIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 
-type Interface__Data = any;
+type DataInterface = Product;
 
-const BASE_ENDPOINT = ``;
-const PREFIX_ID = `user`;
+const BASE_ENDPOINT = `/products`;
+const PREFIX_ID = `product`;
 const DEFAULT_FILTER = {
   search: "",
 };
 
-const Create = () => {
+interface CreateProps extends BtnProps {
+  routeTitle: string;
+}
+
+const Create = (props: CreateProps) => {
+  const ID = `${PREFIX_ID}_create`;
+
+  // Props
+  const { routeTitle, ...restProps } = props;
+
   // Contexts
   const { t } = useLocale();
   const { themeConfig } = useThemeConfig();
+  const setRt = useRenderTrigger((s) => s.setRt);
+
+  // Hooks
+  const { open, onOpen } = usePopDisclosure(disclosureId(`${ID}`));
+  const { req, loading } = useRequest({
+    id: ID,
+    loadingMessage: {
+      title: capitalize(`Tambah ${routeTitle}`),
+    },
+    successMessage: {
+      title: capitalize(`Tambah ${routeTitle} ${t.successful}`),
+    },
+  });
+
+  // States
+  const formik = useFormik({
+    validateOnChange: false,
+    initialValues: {
+      image: null as any[] | null,
+      code: "",
+      name: "",
+      price: null as number | null,
+    },
+    validationSchema: yup.object().shape({}),
+    onSubmit: (values) => {
+      console.debug(values);
+
+      back();
+
+      const payload = new FormData();
+      payload.append("name", values.name);
+      payload.append("code", values.code);
+      payload.append("price", values.price?.toString() || "");
+      payload.append("image", values.image?.[0] || "");
+
+      const config = {
+        url: `${BASE_ENDPOINT}/create`,
+        method: "POST",
+        data: payload,
+      };
+
+      req({
+        config,
+        onResolve: {
+          onSuccess: () => {
+            setRt((ps) => !ps);
+          },
+        },
+      });
+    },
+  });
 
   return (
     <>
       <Tooltip content={t.add}>
-        <Btn iconButton size={"sm"} colorPalette={themeConfig.colorPalette}>
+        <Btn
+          iconButton
+          size={"sm"}
+          colorPalette={themeConfig.colorPalette}
+          onClick={onOpen}
+          {...restProps}
+        >
           <AppIconLucide icon={PlusIcon} />
           {/* Add */}
         </Btn>
       </Tooltip>
+
+      <SimpleDisclosure
+        // withMaximizeButton
+        open={open}
+        title={`Edit ${routeTitle}`}
+        bodyContent={
+          <CContainer>
+            <form id={ID} onSubmit={formik.handleSubmit}>
+              <FieldsetRoot>
+                <Field
+                  label={"Image"}
+                  invalid={!!formik.errors.image}
+                  errorText={formik.errors.image as string}
+                >
+                  <ImgInput
+                    inputValue={formik.values.image}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("image", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Code"}
+                  invalid={!!formik.errors.code}
+                  errorText={formik.errors.code as string}
+                >
+                  <StringInput
+                    inputValue={formik.values.code}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("code", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Name"}
+                  invalid={!!formik.errors.name}
+                  errorText={formik.errors.name as string}
+                >
+                  <StringInput
+                    inputValue={formik.values.name}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("name", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Price"}
+                  invalid={!!formik.errors.price}
+                  errorText={formik.errors.price as string}
+                >
+                  <NumInput
+                    inputValue={formik.values.price}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("price", inputValue);
+                    }}
+                  />
+                </Field>
+              </FieldsetRoot>
+            </form>
+          </CContainer>
+        }
+        footerContent={
+          <>
+            <BackButton variant={"outline"}>Discard</BackButton>
+
+            <Btn
+              type={"submit"}
+              form={ID}
+              colorPalette={themeConfig.colorPalette}
+              loading={loading}
+            >
+              {t.save}
+            </Btn>
+          </>
+        }
+      />
     </>
   );
 };
 
-const DataUtils = (props: any) => {
-  // Props
-  const { filter, setFilter, ...restProps } = props;
+// -----------------------------------------------------------------
 
-  // TODO_DEV use filter state
-  console.debug({ filter, setFilter });
+interface UpdateProps {
+  data: DataInterface;
+  routeTitle: string;
+}
 
-  return (
-    <HStack w={"full"} {...restProps}>
-      <SearchInput
-        queryKey={"q-user"}
-        inputProps={{
-          size: "sm",
-        }}
-        minW={"200px"}
-      />
-
-      <Btn iconButton variant={"outline"} size={"sm"}>
-        <Icon boxSize={BASE_ICON_BOX_SIZE}>
-          <LucideIcon icon={ListFilterIcon} />
-        </Icon>
-      </Btn>
-      <Btn iconButton variant={"outline"} size={"sm"}>
-        <Icon boxSize={BASE_ICON_BOX_SIZE}>
-          <LucideIcon icon={ArrowDownAz} />
-        </Icon>
-      </Btn>
-      <DataDisplayToggle iconButton navKey={PREFIX_ID} size={"sm"} />
-    </HStack>
-  );
-};
-
-const Update = (props: any) => {
+const Update = (props: UpdateProps) => {
   const ID = `${PREFIX_ID}_update`;
 
   // Props
   const { data, routeTitle } = props;
-  const resolvedData = data as Interface__Data;
+  const resolvedData = data as DataInterface;
 
   // Contexts
   const { t } = useLocale();
@@ -127,7 +245,6 @@ const Update = (props: any) => {
   const { open, onOpen } = usePopDisclosure(
     disclosureId(`${ID}-${resolvedData?.id}`),
   );
-
   const { req, loading } = useRequest({
     id: ID,
     loadingMessage: {
@@ -141,7 +258,12 @@ const Update = (props: any) => {
   // States
   const formik = useFormik({
     validateOnChange: false,
-    initialValues: {},
+    initialValues: {
+      image: null as any[] | null,
+      code: "",
+      name: "",
+      price: null as number | null,
+    },
     validationSchema: yup.object().shape({}),
     onSubmit: (values) => {
       console.debug(values);
@@ -149,9 +271,13 @@ const Update = (props: any) => {
       back();
 
       const payload = new FormData();
+      payload.append("name", values.name);
+      payload.append("code", values.code);
+      payload.append("price", values.price?.toString() || "");
+      payload.append("image", values.image?.[0] || "");
 
       const config = {
-        url: `${BASE_ENDPOINT}/update/${resolvedData.id}`,
+        url: `${BASE_ENDPOINT}/update/${resolvedData?.id}`,
         method: "PATCH",
         data: payload,
       };
@@ -169,7 +295,12 @@ const Update = (props: any) => {
 
   // set initial values
   useEffect(() => {
-    formik.setValues({});
+    formik.setValues({
+      image: null as any[] | null,
+      code: resolvedData.code,
+      name: resolvedData.name,
+      price: resolvedData.price,
+    });
   }, [open, resolvedData]);
 
   return (
@@ -187,17 +318,72 @@ const Update = (props: any) => {
       </Tooltip>
 
       <SimpleDisclosure
-        withMaximizeButton
+        // withMaximizeButton
         open={open}
         title={`Edit ${routeTitle}`}
         bodyContent={
-          <P my={10} textAlign={"center"}>
-            body content here
-          </P>
+          <CContainer>
+            <form id={ID} onSubmit={formik.handleSubmit}>
+              <FieldsetRoot>
+                <Field
+                  label={"Replace Image"}
+                  invalid={!!formik.errors.image}
+                  errorText={formik.errors.image as string}
+                >
+                  <ImgInput
+                    inputValue={formik.values.image}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("image", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Code"}
+                  invalid={!!formik.errors.code}
+                  errorText={formik.errors.code as string}
+                >
+                  <StringInput
+                    inputValue={formik.values.code}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("code", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Name"}
+                  invalid={!!formik.errors.name}
+                  errorText={formik.errors.name as string}
+                >
+                  <StringInput
+                    inputValue={formik.values.name}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("name", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Price"}
+                  invalid={!!formik.errors.price}
+                  errorText={formik.errors.price as string}
+                >
+                  <NumInput
+                    inputValue={formik.values.price}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("price", inputValue);
+                    }}
+                  />
+                </Field>
+              </FieldsetRoot>
+            </form>
+          </CContainer>
         }
         footerContent={
           <>
-            <Btn variant={"outline"}>2nd Btn</Btn>
+            <BackButton variant={"outline"}>Discard</BackButton>
+
             <Btn
               type={"submit"}
               form={ID}
@@ -212,6 +398,8 @@ const Update = (props: any) => {
     </>
   );
 };
+
+// -----------------------------------------------------------------
 
 const Restore = (props: any) => {
   const ID = `${PREFIX_ID}_restore`;
@@ -279,6 +467,8 @@ const Restore = (props: any) => {
     </Confirmation.Trigger>
   );
 };
+
+// -----------------------------------------------------------------
 
 const Delete = (props: any) => {
   const ID = `${PREFIX_ID}_delete`;
@@ -357,7 +547,58 @@ const Delete = (props: any) => {
   );
 };
 
-const Data = (props: any) => {
+// -----------------------------------------------------------------
+
+interface DataUtilsProps {
+  routeTitle: string;
+  filter: typeof DEFAULT_FILTER;
+  setFilter: React.Dispatch<React.SetStateAction<typeof DEFAULT_FILTER>>;
+}
+
+const DataUtils = (props: DataUtilsProps) => {
+  // Props
+  const { filter, setFilter, ...restProps } = props;
+
+  return (
+    <HStack w={"full"} {...restProps}>
+      <SearchInput
+        queryKey={"q-user"}
+        inputProps={{
+          size: "sm",
+        }}
+        minW={"200px"}
+        inputValue={filter.search}
+        onChange={(inputValue) => {
+          setFilter((ps) => ({ ...ps, search: inputValue }));
+        }}
+      />
+
+      {/* <Btn iconButton variant={"outline"} size={"sm"}>
+        <Icon boxSize={BASE_ICON_BOX_SIZE}>
+          <LucideIcon icon={ListFilterIcon} />
+        </Icon>
+      </Btn>
+
+      <Btn iconButton variant={"outline"} size={"sm"}>
+        <Icon boxSize={BASE_ICON_BOX_SIZE}>
+          <LucideIcon icon={ArrowDownAz} />
+        </Icon>
+      </Btn> */}
+
+      <DataDisplayToggle iconButton navKey={PREFIX_ID} size={"sm"} />
+    </HStack>
+  );
+};
+
+// -----------------------------------------------------------------
+
+interface DataProps {
+  filter: typeof DEFAULT_FILTER;
+  routeTitle: string;
+  isSmContainer: boolean;
+}
+
+const Data = (props: DataProps) => {
   // Props
   const { filter, routeTitle, isSmContainer } = props;
 
@@ -377,9 +618,10 @@ const Data = (props: any) => {
     page,
     setPage,
     pagination,
-  } = useFetchData<Interface__Data[]>({
-    initialData: dummyUsers,
-    url: ``, // TODO_DEV fetch data url
+  } = useFetchData<DataInterface[]>({
+    initialData: DUMMY_PRODUCTS,
+    // TODO_DEV fetch data url
+    url: ``,
     params: {
       search: filter?.search,
       // others params
@@ -388,38 +630,25 @@ const Data = (props: any) => {
   });
 
   // Derived Values
-  const dataProps: DataProps = {
+  const dataProps: DataConfig = {
     headers: [
+      {
+        th: "Image",
+      },
       {
         th: "Name",
         sortable: true,
       },
       {
-        th: "Email",
+        th: "Code",
         sortable: true,
       },
       {
-        th: "Join Date",
+        th: "Price",
         sortable: true,
       },
       {
-        th: "Join Date",
-        sortable: true,
-      },
-      {
-        th: "Join Date",
-        sortable: true,
-      },
-      {
-        th: "Join Date",
-        sortable: true,
-      },
-      {
-        th: "Join Date",
-        sortable: true,
-      },
-      {
-        th: "Join Date",
+        th: "Created At",
         sortable: true,
       },
     ],
@@ -431,42 +660,28 @@ const Data = (props: any) => {
         dim: !!item.deletedAt,
         columns: [
           {
-            td: <MiniUser user={item} />,
+            value: imgUrl(item.imagePath),
+            td: (
+              <ImgViewer src={imgUrl(item.imagePath)}>
+                <Img src={imgUrl(item.imagePath)} w={"32px"} h={"32px"} />
+              </ImgViewer>
+            ),
+          },
+          {
             value: item.name,
+            td: item.name,
           },
           {
-            td: item.email,
-            value: item.email,
+            value: item.code,
+            td: item.code,
           },
           {
-            td: formatDate(item.createdAt, t),
+            value: item.price,
+            td: `Rp ${formatNumber(item.price)}`,
+          },
+          {
             value: item.createdAt,
-            dataType: "date",
-          },
-          {
             td: formatDate(item.createdAt, t),
-            value: item.createdAt,
-            dataType: "date",
-          },
-          {
-            td: formatDate(item.createdAt, t),
-            value: item.createdAt,
-            dataType: "date",
-          },
-          {
-            td: formatDate(item.createdAt, t),
-            value: item.createdAt,
-            dataType: "date",
-          },
-          {
-            td: formatDate(item.createdAt, t),
-            value: item.createdAt,
-            dataType: "date",
-          },
-          {
-            td: formatDate(item.createdAt, t),
-            value: item.createdAt,
-            dataType: "date",
           },
         ],
       };
@@ -493,7 +708,7 @@ const Data = (props: any) => {
           />
         ),
       }),
-    ] as RowOptionsTableOptionGenerator<Interface__Data>[],
+    ] as RowOptionsTableOptionGenerator<DataInterface>[],
     batchOptions: [
       (ids, { clearSelectedRows }) => ({
         override: (
@@ -561,17 +776,17 @@ const Data = (props: any) => {
           selectedRows,
           toggleRowSelection,
         }: any) => {
-          const resolvedItem: Interface__Data = item;
+          const resolvedItem: DataInterface = item;
 
           return (
             <DataGrid.Item
               key={resolvedItem.id}
               item={{
                 id: resolvedItem.id,
-                imgSrc: imgUrl(resolvedItem.avatar?.[0]?.filePath),
+                imgSrc: imgUrl(resolvedItem.imagePath),
                 showImg: true,
                 title: resolvedItem.name,
-                description: resolvedItem.email,
+                description: `Rp ${formatNumber(resolvedItem.price)}`,
               }}
               dataProps={dataProps}
               row={row}
@@ -606,6 +821,8 @@ const Data = (props: any) => {
   );
 };
 
+// -----------------------------------------------------------------
+
 export default function Page() {
   // Contexts
   const { t } = useLocale();
@@ -616,8 +833,9 @@ export default function Page() {
   // States
   const pathname = usePathname();
   const activeNav = getActiveNavs(pathname);
-  const routeTitle = pluckString(t, last(activeNav)?.labelKey || "");
-  const [filter, setFilter] = useState(DEFAULT_FILTER);
+  const routeTitle =
+    last(activeNav)?.label || pluckString(t, last(activeNav)?.labelKey || "");
+  const [filter, setFilter] = useState<typeof DEFAULT_FILTER>(DEFAULT_FILTER);
 
   return (
     <View.Content p={GAP}>
@@ -638,7 +856,7 @@ export default function Page() {
               />
             )}
 
-            <Create />
+            <Create routeTitle={routeTitle} />
           </HStack>
         </View.Header>
 

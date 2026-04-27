@@ -129,7 +129,7 @@ export const DesktopNavs = (props: DesktopNavsProps) => {
                       {!hasSubMenus && (
                         <NavLink key={nav.path} to={nav.path} w={"full"}>
                           <DesktopNavTooltip
-                            content={pluckString(t, nav.labelKey)}
+                            content={nav.label || pluckString(t, nav.labelKey)}
                           >
                             <Btn
                               iconButton={navsExpanded ? false : true}

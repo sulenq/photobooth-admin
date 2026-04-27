@@ -1,5 +1,5 @@
 import { Gender } from "@/constants/types";
-import { Interface__User } from "./interfaces";
+import { Interface__User, Product } from "./interfaces";
 const generate1D = () => {
   let v23 = 80;
   let v24 = 90;
@@ -1116,5 +1116,35 @@ export const dummyAllActivityLogs = [
     createdAt: "2025-11-12T18:30:00.000Z",
     updatedAt: "2025-11-12T18:30:00.000Z",
     deletedAt: null,
+  },
+];
+
+export const DUMMY_PRODUCTS: Product[] = [
+  {
+    id: "1",
+    code: "PRD-001",
+    name: "Wireless Mouse",
+    tenantId: "TNT-001",
+    price: 150000,
+    imagePath: "/images/products/mouse.jpg",
+    createdAt: "2026-01-01T10:00:00.000Z",
+  },
+  {
+    id: "2",
+    code: "PRD-002",
+    name: "Mechanical Keyboard",
+    tenantId: "TNT-001",
+    price: 450000,
+    imagePath: "/images/products/keyboard.jpg",
+    createdAt: "2026-01-05T12:30:00.000Z",
+  },
+  {
+    id: "3",
+    code: "PRD-003",
+    name: "USB-C Hub",
+    tenantId: "TNT-002",
+    price: 250000,
+    imagePath: "/images/products/hub.jpg",
+    createdAt: "2026-01-10T08:15:00.000Z",
   },
 ];

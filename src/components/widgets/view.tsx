@@ -183,7 +183,7 @@ export const TopBar = (props: StackProps) => {
 
         {!isSmContainer && <Divider dir={"vertical"} mx={2} h={"20px"} />}
 
-        <Clock showSeconds fontSize={"sm"} />
+        <Clock fontSize={"sm"} />
       </Stack>
 
       <StackH justify={"end"} gap={2} w={"35%"}>
@@ -313,7 +313,9 @@ const ViewHeader = (props: ViewHeaderProps) => {
 
   // Constants
   const activeNavs = getActiveNavs(pathname);
-  const navTitle = pluckString(t, last<any>(activeNavs)?.labelKey);
+  const navTitle =
+    last<any>(activeNavs)?.label ||
+    pluckString(t, last<any>(activeNavs)?.labelKey);
 
   // Derived Values
   const resolvedTitle = title || navTitle;

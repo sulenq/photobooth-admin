@@ -7,14 +7,14 @@ import { LucideIcon } from "lucide-react";
 import { ReactNode } from "react";
 
 // Auth
-export interface Interface__ActivityLog extends Interface__CUD {
+export interface Interface__ActivityLog extends CUD {
   id: string;
   userId: string;
   action: ActivityActionEnum | string;
   metadata?: Record<string, any>;
   user?: Interface__User;
 }
-export interface Interface__AuthLog extends Interface__CUD {
+export interface Interface__AuthLog extends CUD {
   id: string;
   ip: string;
   city: string;
@@ -22,7 +22,7 @@ export interface Interface__AuthLog extends Interface__CUD {
   userAgent: string;
   action: string; // "Sign in" | "Sign out" ;
 }
-export interface Interface__User extends Interface__CUD {
+export interface Interface__User extends CUD {
   id: string;
   avatar: Interface__StorageFile[];
   name: string;
@@ -94,7 +94,7 @@ export interface Interface__PdfViewerUtils {
 }
 
 // Data Table
-export interface DataProps {
+export interface DataConfig {
   headers?: FormattedTableHeader[];
   rows?: FormattedTableRow[];
   rowOptions?: RowOptionsTableOptionGenerator[];
@@ -164,15 +164,8 @@ export interface Interface__Req<T = any> {
   };
 }
 
-// CUD
-export interface Interface__CUD {
-  createdAt?: string;
-  updatedAt?: string | null;
-  deletedAt?: string | null;
-}
-
 // Storage
-export interface Interface__StorageFile extends Interface__CUD {
+export interface Interface__StorageFile extends CUD {
   id: string;
   fileName: string;
   filePath: string;
@@ -189,3 +182,32 @@ export interface Interface__SelectOption {
   original_data?: any;
   disabled?: boolean;
 }
+
+// CUD
+export interface CUD {
+  createdAt?: string;
+  updatedAt?: string | null;
+  deletedAt?: string | null;
+}
+
+// -----------------------------------------------------------------
+
+// Main Feature ----------------------------------------------------
+
+// Product
+export interface Product extends CUD {
+  id: string;
+  code: string;
+  name: string;
+  tenantId: string;
+  price: number;
+  imagePath: string;
+}
+
+// Template
+
+// Time
+
+// Voucher
+
+// Transaction

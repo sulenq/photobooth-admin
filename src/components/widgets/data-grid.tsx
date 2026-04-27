@@ -15,7 +15,7 @@ import { DataFooter } from "@/components/widgets/data-footer";
 import FeedbackNotFound from "@/components/widgets/feedback-not-found";
 import { ImgViewer } from "@/components/widgets/img-viewer";
 import { RowOptions } from "@/components/widgets/row-options";
-import { DataProps, FormattedTableRow } from "@/constants/interfaces";
+import { DataConfig, FormattedTableRow } from "@/constants/interfaces";
 import {
   BACKDROP_BLUR_FILTER,
   GAP,
@@ -51,7 +51,7 @@ interface DataGridItemProps extends StackProps {
     deletedAt?: string | null;
   };
   dim?: boolean;
-  dataProps: DataProps;
+  dataProps: DataConfig;
   row: FormattedTableRow;
   selectedRows: string[];
   toggleRowSelection: (row: FormattedTableRow) => void;
@@ -322,7 +322,7 @@ interface GridItem {
 
 interface DataGridProps extends Omit<StackProps, "page"> {
   data?: any[];
-  dataProps: DataProps;
+  dataProps: DataConfig;
   gridItem: (props: GridItem) => React.ReactNode;
   limit?: number;
   setLimit?: (limit: number) => void;
@@ -450,6 +450,7 @@ const DataGridDisplay = (props: DataGridProps) => {
 
       {/* Grid */}
       <StackV
+        flex={1}
         // pt={`calc(${rSpacingMd} - 8px)`}
         pt={R_SPACING_MD}
         overflowY={"auto"}
