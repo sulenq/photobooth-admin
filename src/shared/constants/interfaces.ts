@@ -231,6 +231,7 @@ export interface Voucher extends CUD {
   dateFrom: string | null;
   dateTo: string | null;
   tenantId: string;
+  used: number;
 }
 
 // Transaction

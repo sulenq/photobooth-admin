@@ -2,54 +2,46 @@
 
 import { Btn, BtnProps } from "@/components/ui/btn";
 import { CContainer } from "@/components/ui/c-container";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { Field, FieldsetRoot } from "@/components/ui/field";
-import { Img } from "@/components/ui/img";
-import { ImgInput } from "@/components/ui/img-input";
 import { Menu } from "@/components/ui/menu";
 import { NumInput } from "@/components/ui/number-input";
 import { SearchInput } from "@/components/ui/search-input";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { StringInput } from "@/components/ui/string-input";
+import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
 import { AppIconLucide } from "@/components/widgets/app-icon";
 import { BackButton } from "@/components/widgets/back-button";
 import { Confirmation } from "@/components/widgets/confirmation";
-import { DataDisplayToggle } from "@/components/widgets/data-display-toggle";
-import { DataGrid } from "@/components/widgets/data-grid";
 import { DataTable } from "@/components/widgets/data-table";
 import FeedbackNoData from "@/components/widgets/feedback-no-data";
 import FeedbackRetry from "@/components/widgets/feedback-retry";
-import { ImgViewer } from "@/components/widgets/img-viewer";
 import { Item } from "@/components/widgets/item";
 import { ScrollH } from "@/components/widgets/scroll-h";
 import { SimpleDisclosure } from "@/components/widgets/simple-disclosure";
 import { View, useViewContext } from "@/components/widgets/view";
-import {
-  PRODUCT_BASE_ENDPOINT,
-  VOUCHER_BASE_ENDPOINT,
-} from "@/shared/constants/apiEndpoints";
-import { DUMMY_PRODUCTS } from "@/shared/constants/dummyData";
-import {
-  BatchOptionsTableOptionGenerator,
-  DataConfig,
-  Product,
-  RowOptionsTableOptionGenerator,
-  Voucher,
-} from "@/shared/constants/interfaces";
-import { GAP, R_SPACING_MD } from "@/shared/constants/styles";
-import { useDataDisplay } from "@/contexts/useDataDisplay";
 import { useLocale } from "@/contexts/useLocale";
 import useRenderTrigger from "@/contexts/useRenderTrigger";
 import { useThemeConfig } from "@/contexts/useThemeConfig";
 import { useFetchData } from "@/hooks/useFetchData";
 import { usePopDisclosure } from "@/hooks/usePopDisclosure";
 import { useRequest } from "@/hooks/useRequest";
+import { VOUCHER_BASE_ENDPOINT } from "@/shared/constants/apiEndpoints";
+import { DUMMY_VOUCHER } from "@/shared/constants/dummyData";
+import {
+  BatchOptionsTableOptionGenerator,
+  DataConfig,
+  RowOptionsTableOptionGenerator,
+  Voucher,
+} from "@/shared/constants/interfaces";
+import { GAP, R_SPACING_MD } from "@/shared/constants/styles";
 import { isEmptyArray, last } from "@/shared/utils/array";
 import { back } from "@/shared/utils/client";
 import { disclosureId } from "@/shared/utils/disclosure";
 import { formatDate, formatNumber } from "@/shared/utils/formatter";
 import { capitalize, pluckString } from "@/shared/utils/string";
-import { getActiveNavs, imgUrl } from "@/shared/utils/url";
+import { getActiveNavs } from "@/shared/utils/url";
 import { HStack } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { EditIcon, PlusIcon, TrashIcon } from "lucide-react";
@@ -60,10 +52,12 @@ import * as yup from "yup";
 type DataInterface = Voucher;
 
 const BASE_ENDPOINT = VOUCHER_BASE_ENDPOINT;
-const PREFIX_ID = `product`;
+const PREFIX_ID = `voucher`;
 const DEFAULT_FILTER = {
   search: "",
 };
+
+// -----------------------------------------------------------------
 
 interface CreateProps extends BtnProps {
   routeTitle: string;
@@ -92,43 +86,36 @@ const Create = (props: CreateProps) => {
     },
   });
 
-  // id: string;
-  // name: string;
-  // value: string;
-  // isPercentage: boolean;
-  // isLimit: boolean;
-  // limitQty: number | null;
-  // limitRp: number | null;
-  // dateFrom: string | null;
-  // dateTo: string | null;
-  // tenantId: string;
-
   // States
   const formik = useFormik({
     validateOnChange: false,
     initialValues: {
       name: "",
-      value: "",
+      value: null as number | null,
       isPercentage: false,
       isLimit: false,
-      limitQty: null,
-      limitRp: null,
-      dateFrom: "",
-      dateTo: "",
+      limitQty: null as number | null,
+      limitRp: null as number | null,
+      dateFrom: null as string[] | null,
+      dateTo: null as string[] | null,
     },
     validationSchema: yup.object().shape({
-      price: yup.number().required("Price is required"),
+      name: yup.string().required("Name is required"),
+      value: yup.number().required("Value is required"),
     }),
     onSubmit: (values) => {
-      console.debug(values);
-
       back();
 
-      const payload = new FormData();
-      payload.append("name", values.name);
-      payload.append("code", values.code);
-      payload.append("price", values.price?.toString() || "");
-      payload.append("image", values.image?.[0] || "");
+      const payload = {
+        name: values.name,
+        value: values.value?.toString() || "",
+        isPercentage: values.isPercentage,
+        isLimit: values.isLimit,
+        limitQty: values.isLimit ? values.limitQty : null,
+        limitRp: values.isLimit ? values.limitRp : null,
+        dateFrom: values.dateFrom?.[0] || null,
+        dateTo: values.dateTo?.[0] || null,
+      };
 
       const config = {
         url: `${BASE_ENDPOINT}/create`,
@@ -158,44 +145,16 @@ const Create = (props: CreateProps) => {
           {...restProps}
         >
           <AppIconLucide icon={PlusIcon} />
-          {/* Add */}
         </Btn>
       </Tooltip>
 
       <SimpleDisclosure
-        // withMaximizeButton
         open={open}
-        title={`Edit ${routeTitle}`}
+        title={`Add ${routeTitle}`}
         bodyContent={
           <CContainer>
             <form id={ID} onSubmit={formik.handleSubmit}>
               <FieldsetRoot>
-                <Field
-                  label={"Image"}
-                  invalid={!!formik.errors.image}
-                  errorText={formik.errors.image as string}
-                >
-                  <ImgInput
-                    inputValue={formik.values.image}
-                    onChange={(inputValue) => {
-                      formik.setFieldValue("image", inputValue);
-                    }}
-                  />
-                </Field>
-
-                <Field
-                  label={"Code"}
-                  invalid={!!formik.errors.code}
-                  errorText={formik.errors.code as string}
-                >
-                  <StringInput
-                    inputValue={formik.values.code}
-                    onChange={(inputValue) => {
-                      formik.setFieldValue("code", inputValue);
-                    }}
-                  />
-                </Field>
-
                 <Field
                   label={"Name"}
                   invalid={!!formik.errors.name}
@@ -210,14 +169,100 @@ const Create = (props: CreateProps) => {
                 </Field>
 
                 <Field
-                  label={"Price"}
-                  invalid={!!formik.errors.price}
-                  errorText={formik.errors.price as string}
+                  label={"Value"}
+                  invalid={!!formik.errors.value}
+                  errorText={formik.errors.value as string}
                 >
                   <NumInput
-                    inputValue={formik.values.price}
+                    inputValue={formik.values.value}
                     onChange={(inputValue) => {
-                      formik.setFieldValue("price", inputValue);
+                      formik.setFieldValue("value", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field label={"Percentage"}>
+                  <Switch
+                    checked={formik.values.isPercentage}
+                    onCheckedChange={(details) => {
+                      formik.setFieldValue("isPercentage", details.checked);
+                    }}
+                    colorPalette={themeConfig.colorPalette}
+                  >
+                    Percentage
+                  </Switch>
+                </Field>
+
+                <Field label={"Has Limit"}>
+                  <Switch
+                    checked={formik.values.isLimit}
+                    onCheckedChange={(details) => {
+                      formik.setFieldValue("isLimit", details.checked);
+                      if (!details.checked) {
+                        formik.setFieldValue("limitQty", null);
+                        formik.setFieldValue("limitRp", null);
+                      }
+                    }}
+                    colorPalette={themeConfig.colorPalette}
+                  >
+                    Has Limit
+                  </Switch>
+                </Field>
+
+                {formik.values.isLimit && (
+                  <>
+                    <Field
+                      label={"Limit Qty"}
+                      invalid={!!formik.errors.limitQty}
+                      errorText={formik.errors.limitQty as string}
+                    >
+                      <NumInput
+                        inputValue={formik.values.limitQty}
+                        onChange={(inputValue) => {
+                          formik.setFieldValue("limitQty", inputValue);
+                        }}
+                      />
+                    </Field>
+
+                    <Field
+                      label={"Limit Rp"}
+                      invalid={!!formik.errors.limitRp}
+                      errorText={formik.errors.limitRp as string}
+                    >
+                      <NumInput
+                        inputValue={formik.values.limitRp}
+                        onChange={(inputValue) => {
+                          formik.setFieldValue("limitRp", inputValue);
+                        }}
+                      />
+                    </Field>
+                  </>
+                )}
+
+                <Field
+                  label={"Date From"}
+                  invalid={!!formik.errors.dateFrom}
+                  errorText={formik.errors.dateFrom as string}
+                >
+                  <DatePickerInput
+                    id={`${ID}-date-from`}
+                    inputValue={formik.values.dateFrom}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("dateFrom", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Date To"}
+                  invalid={!!formik.errors.dateTo}
+                  errorText={formik.errors.dateTo as string}
+                >
+                  <DatePickerInput
+                    id={`${ID}-date-to`}
+                    inputValue={formik.values.dateTo}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("dateTo", inputValue);
                     }}
                   />
                 </Field>
@@ -281,26 +326,32 @@ const Update = (props: UpdateProps) => {
   const formik = useFormik({
     validateOnChange: false,
     initialValues: {
-      image: null as any[] | null,
-      code: "",
       name: "",
-      price: null as number | null,
+      value: null as number | null,
+      isPercentage: false,
+      isLimit: false,
+      limitQty: null as number | null,
+      limitRp: null as number | null,
+      dateFrom: null as string[] | null,
+      dateTo: null as string[] | null,
     },
     validationSchema: yup.object().shape({
-      code: yup.string().required("Code is required"),
       name: yup.string().required("Name is required"),
-      price: yup.number().required("Price is required"),
+      value: yup.number().required("Value is required"),
     }),
     onSubmit: (values) => {
-      console.debug(values);
-
       back();
 
-      const payload = new FormData();
-      payload.append("name", values.name);
-      payload.append("code", values.code);
-      payload.append("price", values.price?.toString() || "");
-      payload.append("image", values.image?.[0] || "");
+      const payload = {
+        name: values.name,
+        value: values.value?.toString() || "",
+        isPercentage: values.isPercentage,
+        isLimit: values.isLimit,
+        limitQty: values.isLimit ? values.limitQty : null,
+        limitRp: values.isLimit ? values.limitRp : null,
+        dateFrom: values.dateFrom?.[0] || null,
+        dateTo: values.dateTo?.[0] || null,
+      };
 
       const config = {
         url: `${BASE_ENDPOINT}/update/${resolvedData?.id}`,
@@ -322,10 +373,14 @@ const Update = (props: UpdateProps) => {
   // set initial values
   useEffect(() => {
     formik.setValues({
-      image: null as any[] | null,
-      code: resolvedData.code,
       name: resolvedData.name,
-      price: resolvedData.price,
+      value: parseFloat(resolvedData.value),
+      isPercentage: resolvedData.isPercentage,
+      isLimit: resolvedData.isLimit,
+      limitQty: resolvedData.limitQty,
+      limitRp: resolvedData.limitRp,
+      dateFrom: resolvedData.dateFrom ? [resolvedData.dateFrom] : null,
+      dateTo: resolvedData.dateTo ? [resolvedData.dateTo] : null,
     });
   }, [open, resolvedData]);
 
@@ -344,39 +399,12 @@ const Update = (props: UpdateProps) => {
       </Tooltip>
 
       <SimpleDisclosure
-        // withMaximizeButton
         open={open}
         title={`Edit ${routeTitle}`}
         bodyContent={
           <CContainer>
             <form id={ID} onSubmit={formik.handleSubmit}>
               <FieldsetRoot>
-                <Field
-                  label={"Replace Image"}
-                  invalid={!!formik.errors.image}
-                  errorText={formik.errors.image as string}
-                >
-                  <ImgInput
-                    inputValue={formik.values.image}
-                    onChange={(inputValue) => {
-                      formik.setFieldValue("image", inputValue);
-                    }}
-                  />
-                </Field>
-
-                <Field
-                  label={"Code"}
-                  invalid={!!formik.errors.code}
-                  errorText={formik.errors.code as string}
-                >
-                  <StringInput
-                    inputValue={formik.values.code}
-                    onChange={(inputValue) => {
-                      formik.setFieldValue("code", inputValue);
-                    }}
-                  />
-                </Field>
-
                 <Field
                   label={"Name"}
                   invalid={!!formik.errors.name}
@@ -391,14 +419,100 @@ const Update = (props: UpdateProps) => {
                 </Field>
 
                 <Field
-                  label={"Price"}
-                  invalid={!!formik.errors.price}
-                  errorText={formik.errors.price as string}
+                  label={"Value"}
+                  invalid={!!formik.errors.value}
+                  errorText={formik.errors.value as string}
                 >
                   <NumInput
-                    inputValue={formik.values.price}
+                    inputValue={formik.values.value}
                     onChange={(inputValue) => {
-                      formik.setFieldValue("price", inputValue);
+                      formik.setFieldValue("value", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field label={"Percentage"}>
+                  <Switch
+                    checked={formik.values.isPercentage}
+                    onCheckedChange={(details) => {
+                      formik.setFieldValue("isPercentage", details.checked);
+                    }}
+                    colorPalette={themeConfig.colorPalette}
+                  >
+                    Percentage
+                  </Switch>
+                </Field>
+
+                <Field label={"Has Limit"}>
+                  <Switch
+                    checked={formik.values.isLimit}
+                    onCheckedChange={(details) => {
+                      formik.setFieldValue("isLimit", details.checked);
+                      if (!details.checked) {
+                        formik.setFieldValue("limitQty", null);
+                        formik.setFieldValue("limitRp", null);
+                      }
+                    }}
+                    colorPalette={themeConfig.colorPalette}
+                  >
+                    Has Limit
+                  </Switch>
+                </Field>
+
+                {formik.values.isLimit && (
+                  <>
+                    <Field
+                      label={"Limit Qty"}
+                      invalid={!!formik.errors.limitQty}
+                      errorText={formik.errors.limitQty as string}
+                    >
+                      <NumInput
+                        inputValue={formik.values.limitQty}
+                        onChange={(inputValue) => {
+                          formik.setFieldValue("limitQty", inputValue);
+                        }}
+                      />
+                    </Field>
+
+                    <Field
+                      label={"Limit Rp"}
+                      invalid={!!formik.errors.limitRp}
+                      errorText={formik.errors.limitRp as string}
+                    >
+                      <NumInput
+                        inputValue={formik.values.limitRp}
+                        onChange={(inputValue) => {
+                          formik.setFieldValue("limitRp", inputValue);
+                        }}
+                      />
+                    </Field>
+                  </>
+                )}
+
+                <Field
+                  label={"Date From"}
+                  invalid={!!formik.errors.dateFrom}
+                  errorText={formik.errors.dateFrom as string}
+                >
+                  <DatePickerInput
+                    id={`${ID}-date-from-${resolvedData?.id}`}
+                    inputValue={formik.values.dateFrom}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("dateFrom", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Date To"}
+                  invalid={!!formik.errors.dateTo}
+                  errorText={formik.errors.dateTo as string}
+                >
+                  <DatePickerInput
+                    id={`${ID}-date-to-${resolvedData?.id}`}
+                    inputValue={formik.values.dateTo}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("dateTo", inputValue);
                     }}
                   />
                 </Field>
@@ -424,75 +538,6 @@ const Update = (props: UpdateProps) => {
     </>
   );
 };
-
-// -----------------------------------------------------------------
-
-// const Restore = (props: any) => {
-//   const ID = `${PREFIX_ID}_restore`;
-
-//   // Props
-//   const { restoreIds, clearSelectedRows, disabled, routeTitle } = props;
-
-//   // Contexts
-//   const { t } = useLocale();
-//   const setRt = useRenderTrigger((s) => s.setRt);
-
-//   // Hooks
-//   const { req, loading } = useRequest({
-//     id: ID,
-//     loadingMessage: {
-//       title: capitalize(`${t.restore} ${routeTitle}`),
-//     },
-//     successMessage: {
-//       title: capitalize(`${t.restore} ${routeTitle} ${t.successful}`),
-//     },
-//   });
-
-//   // Utils
-//   function onActivate() {
-//     back();
-//     req({
-//       config: {
-//         url: `${BASE_ENDPOINT}/restore`,
-//         method: "PATCH",
-//         data: {
-//           restoreIds: restoreIds,
-//         },
-//       },
-//       onResolve: {
-//         onSuccess: () => {
-//           setRt((ps) => !ps);
-//           clearSelectedRows?.();
-//         },
-//       },
-//     });
-//   }
-
-//   return (
-//     <Confirmation.Trigger
-//       w={"full"}
-//       id={`${ID}-${restoreIds}`}
-//       title={`${t.restore} ${routeTitle}`}
-//       description={t.msg_activate}
-//       confirmLabel={`${t.restore}`}
-//       onConfirm={onActivate}
-//       loading={loading}
-//       disabled={disabled}
-//     >
-//       <Tooltip
-//         content={t.restore}
-//         positioning={{
-//           placement: "right",
-//         }}
-//       >
-//         <Menu.Item value={"restore"} disabled={disabled}>
-//           <AppIconLucide icon={UndoIcon} />
-//           {t.restore}
-//         </Menu.Item>
-//       </Tooltip>
-//     </Confirmation.Trigger>
-//   );
-// };
 
 // -----------------------------------------------------------------
 
@@ -588,7 +633,7 @@ const DataUtils = (props: DataUtilsProps) => {
   return (
     <HStack w={"full"} {...restProps}>
       <SearchInput
-        queryKey={"q-user"}
+        queryKey={"q-voucher"}
         inputProps={{
           size: "sm",
         }}
@@ -599,19 +644,7 @@ const DataUtils = (props: DataUtilsProps) => {
         }}
       />
 
-      {/* <Btn iconButton variant={"outline"} size={"sm"}>
-        <Icon boxSize={BASE_ICON_BOX_SIZE}>
-          <LucideIcon icon={ListFilterIcon} />
-        </Icon>
-      </Btn>
-
-      <Btn iconButton variant={"outline"} size={"sm"}>
-        <Icon boxSize={BASE_ICON_BOX_SIZE}>
-          <LucideIcon icon={ArrowDownAz} />
-        </Icon>
-      </Btn> */}
-
-      <DataDisplayToggle iconButton navKey={PREFIX_ID} size={"sm"} />
+      {/* <DataDisplayToggle iconButton navKey={PREFIX_ID} size={"sm"} /> */}
     </HStack>
   );
 };
@@ -626,12 +659,10 @@ interface DataProps {
 
 const Data = (props: DataProps) => {
   // Props
-  const { filter, routeTitle, isSmContainer } = props;
+  const { filter, routeTitle } = props;
 
   // Contexts
   const { t } = useLocale();
-  const displayMode = useDataDisplay((s) => s.getDisplay(PREFIX_ID));
-  const displayTable = displayMode === "table";
 
   // States
   const {
@@ -645,33 +676,52 @@ const Data = (props: DataProps) => {
     setPage,
     pagination,
   } = useFetchData<DataInterface[]>({
-    initialData: DUMMY_PRODUCTS,
+    initialData: DUMMY_VOUCHER,
     // TODO_DEV fetch data url
     url: ``,
     params: {
       search: filter?.search,
-      // others params
     },
     dependencies: [filter],
   });
+
+  // Helpers
+  function formatValue(item: DataInterface) {
+    return item.isPercentage
+      ? `${item.value}%`
+      : `Rp ${formatNumber(parseFloat(item.value))}`;
+  }
+
+  function formatLimit(item: DataInterface) {
+    if (!item.isLimit) return "No Limit";
+    if (item.limitQty != null) return `${formatNumber(item.limitQty)} pcs`;
+    if (item.limitRp != null) return `Rp ${formatNumber(item.limitRp)}`;
+    return "-";
+  }
+
+  function formatPeriod(item: DataInterface) {
+    if (!item.dateFrom && !item.dateTo) return "No Limit";
+    const from = item.dateFrom ? formatDate(item.dateFrom, t) : "?";
+    const to = item.dateTo ? formatDate(item.dateTo, t) : "?";
+    return `${from} – ${to}`;
+  }
 
   // Derived Values
   const dataProps: DataConfig = {
     headers: [
       {
-        th: "Image",
-      },
-      {
         th: "Name",
         sortable: true,
       },
       {
-        th: "Code",
+        th: "Value",
         sortable: true,
       },
       {
-        th: "Price",
-        sortable: true,
+        th: "Limit",
+      },
+      {
+        th: "Period",
       },
       {
         th: "Created At",
@@ -686,24 +736,20 @@ const Data = (props: DataProps) => {
         dim: !!item.deletedAt,
         columns: [
           {
-            value: imgUrl(item.imagePath),
-            td: (
-              <ImgViewer src={imgUrl(item.imagePath)}>
-                <Img src={imgUrl(item.imagePath)} w={"32px"} h={"32px"} />
-              </ImgViewer>
-            ),
-          },
-          {
             value: item.name,
             td: item.name,
           },
           {
-            value: item.code,
-            td: item.code,
+            value: item.value,
+            td: formatValue(item),
           },
           {
-            value: item.price,
-            td: `Rp ${formatNumber(item.price)}`,
+            value: item.limitQty ?? item.limitRp ?? 0,
+            td: formatLimit(item),
+          },
+          {
+            value: item.dateFrom,
+            td: formatPeriod(item),
           },
           {
             value: item.createdAt,
@@ -716,15 +762,6 @@ const Data = (props: DataProps) => {
       (row) => ({
         override: <Update data={row.data} routeTitle={routeTitle} />,
       }),
-      // (row) => ({
-      //   override: (
-      //     <Restore
-      //       restoreIds={[row.data.id]}
-      //       disabled={!row.data.deletedAt}
-      //       routeTitle={routeTitle}
-      //     />
-      //   ),
-      // }),
       (row) => ({
         override: (
           <Delete
@@ -736,21 +773,6 @@ const Data = (props: DataProps) => {
       }),
     ] as RowOptionsTableOptionGenerator<DataInterface>[],
     batchOptions: [
-      // (ids, { clearSelectedRows }) => ({
-      //   override: (
-      //     <Restore
-      //       restoreIds={ids}
-      //       clearSelectedRows={clearSelectedRows}
-      //       disabled={
-      //         isEmptyArray(ids) ||
-      //         data
-      //           ?.filter((item) => ids.includes(item.id))
-      //           .some((item) => !item.deletedAt)
-      //       }
-      //       routeTitle={routeTitle}
-      //     />
-      //   ),
-      // }),
       (ids, { clearSelectedRows }) => ({
         override: (
           <Delete
@@ -774,7 +796,7 @@ const Data = (props: DataProps) => {
     loading: <TableSkeleton />,
     error: <FeedbackRetry onRetry={onRetry} />,
     empty: <FeedbackNoData />,
-    loaded: displayTable ? (
+    loaded: (
       <DataTable.Display
         headers={dataProps.headers}
         rows={dataProps.rows}
@@ -785,45 +807,6 @@ const Data = (props: DataProps) => {
         page={page}
         setPage={setPage}
         totalPage={pagination?.meta?.totalPage}
-      />
-    ) : (
-      <DataGrid.Display
-        data={data}
-        dataProps={dataProps}
-        limit={limit}
-        setLimit={setLimit}
-        page={page}
-        setPage={setPage}
-        totalPage={pagination?.meta?.totalPage}
-        gridItem={({
-          item,
-          row,
-          details,
-          selectedRows,
-          toggleRowSelection,
-        }: any) => {
-          const resolvedItem: DataInterface = item;
-
-          return (
-            <DataGrid.Item
-              key={resolvedItem.id}
-              item={{
-                id: resolvedItem.id,
-                imgSrc: imgUrl(resolvedItem.imagePath),
-                showImg: true,
-                title: resolvedItem.name,
-                description: `Rp ${formatNumber(resolvedItem.price)}`,
-              }}
-              dataProps={dataProps}
-              row={row}
-              selectedRows={selectedRows}
-              toggleRowSelection={toggleRowSelection}
-              routeTitle={routeTitle}
-              details={details}
-            />
-          );
-        }}
-        mt={isSmContainer ? 3 : 0}
       />
     ),
   };
