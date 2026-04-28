@@ -3,21 +3,18 @@
 import { CContainer } from "@/components/ui/c-container";
 import { SearchInput } from "@/components/ui/search-input";
 import { TableSkeleton } from "@/components/ui/skeleton";
-import { DataDisplayToggle } from "@/components/widgets/data-display-toggle";
-import { DataGrid } from "@/components/widgets/data-grid";
 import { DataTable } from "@/components/widgets/data-table";
 import FeedbackNoData from "@/components/widgets/feedback-no-data";
 import FeedbackRetry from "@/components/widgets/feedback-retry";
 import { Item } from "@/components/widgets/item";
 import { ScrollH } from "@/components/widgets/scroll-h";
 import { View, useViewContext } from "@/components/widgets/view";
+import { useLocale } from "@/contexts/useLocale";
+import { useFetchData } from "@/hooks/useFetchData";
 import { TRANSACTION_BASE_ENDPOINT } from "@/shared/constants/apiEndpoints";
 import { DUMMY_TRANSACTION } from "@/shared/constants/dummyData";
 import { DataConfig, Transaction } from "@/shared/constants/interfaces";
 import { GAP, R_SPACING_MD } from "@/shared/constants/styles";
-import { useDataDisplay } from "@/contexts/useDataDisplay";
-import { useLocale } from "@/contexts/useLocale";
-import { useFetchData } from "@/hooks/useFetchData";
 import { isEmptyArray, last } from "@/shared/utils/array";
 import { formatDate, formatNumber } from "@/shared/utils/formatter";
 import { pluckString } from "@/shared/utils/string";
@@ -29,7 +26,7 @@ import React, { useState } from "react";
 type DataInterface = Transaction;
 
 const BASE_ENDPOINT = TRANSACTION_BASE_ENDPOINT;
-const PREFIX_ID = `transaction`;
+// const PREFIX_ID = `transaction`;
 const DEFAULT_FILTER = {
   search: "",
 };
@@ -58,7 +55,7 @@ const DataUtils = (props: DataUtilsProps) => {
         }}
       />
 
-      <DataDisplayToggle iconButton navKey={PREFIX_ID} size={"sm"} />
+      {/* <DataDisplayToggle iconButton navKey={PREFIX_ID} size={"sm"} /> */}
     </HStack>
   );
 };
@@ -73,12 +70,10 @@ interface DataProps {
 
 const Data = (props: DataProps) => {
   // Props
-  const { filter, routeTitle, isSmContainer } = props;
+  const { filter } = props;
 
   // Contexts
   const { t } = useLocale();
-  const displayMode = useDataDisplay((s) => s.getDisplay(PREFIX_ID));
-  const displayTable = displayMode === "table";
 
   // States
   const {
@@ -216,7 +211,7 @@ const Data = (props: DataProps) => {
     loading: <TableSkeleton />,
     error: <FeedbackRetry onRetry={onRetry} />,
     empty: <FeedbackNoData />,
-    loaded: displayTable ? (
+    loaded: (
       <DataTable.Display
         headers={dataConfig.headers}
         rows={dataConfig.rows}
@@ -224,45 +219,8 @@ const Data = (props: DataProps) => {
         setLimit={setLimit}
         page={page}
         setPage={setPage}
-        totalPage={pagination?.meta?.totalPage}
-      />
-    ) : (
-      <DataGrid.Display
-        data={data}
-        dataConfig={dataConfig}
-        limit={limit}
-        setLimit={setLimit}
-        page={page}
-        setPage={setPage}
-        totalPage={pagination?.meta?.totalPage}
-        gridItem={({
-          item,
-          row,
-          details,
-          selectedRows,
-          toggleRowSelection,
-        }: any) => {
-          const resolvedItem: DataInterface = item;
-
-          return (
-            <DataGrid.Item
-              key={resolvedItem.id}
-              item={{
-                id: resolvedItem.id,
-                showImg: false,
-                title: resolvedItem.invoiceNumber,
-                description: `Rp ${formatNumber(resolvedItem.grandTotal)}`,
-              }}
-              dataConfig={dataConfig}
-              row={row}
-              selectedRows={selectedRows}
-              toggleRowSelection={toggleRowSelection}
-              routeTitle={routeTitle}
-              details={details}
-            />
-          );
-        }}
-        mt={isSmContainer ? 3 : 0}
+        totalPage={pagination?.totalPage}
+        totalData={pagination?.totalData}
       />
     ),
   };

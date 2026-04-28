@@ -337,7 +337,7 @@ const AuthLog = () => {
             totalData={data?.totalData}
             page={page}
             setPage={setPage}
-            totalPage={pagination?.meta?.totalPage}
+            totalPage={pagination?.totalPage}
           />
         </Item.Body>
       </StackV>
@@ -485,7 +485,7 @@ const ActivityLog = () => {
             totalData={data?.totalData}
             page={page}
             setPage={setPage}
-            totalPage={pagination?.meta?.totalPage}
+            totalPage={pagination?.totalPage}
           />
         </Item.Body>
       </StackV>

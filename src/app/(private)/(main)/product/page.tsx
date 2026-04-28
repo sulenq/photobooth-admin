@@ -768,7 +768,7 @@ const Data = (props: DataProps) => {
         setLimit={setLimit}
         page={page}
         setPage={setPage}
-        totalPage={pagination?.meta?.totalPage}
+        totalPage={pagination?.totalPage}
       />
     ) : (
       <DataGrid.Display
@@ -778,7 +778,7 @@ const Data = (props: DataProps) => {
         setLimit={setLimit}
         page={page}
         setPage={setPage}
-        totalPage={pagination?.meta?.totalPage}
+        totalPage={pagination?.totalPage}
         gridItem={({
           item,
           row,

@@ -837,7 +837,7 @@ const Data = (props: DataProps) => {
         setLimit={setLimit}
         page={page}
         setPage={setPage}
-        totalPage={pagination?.meta?.totalPage}
+        totalPage={pagination?.totalPage}
       />
     ),
   };
