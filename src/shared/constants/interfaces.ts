@@ -1,6 +1,6 @@
 import { BtnProps } from "@/components/ui/btn";
-import { ActivityActionEnum } from "@/constants/enums";
-import { Gender } from "@/constants/types";
+import { ActivityActionEnum } from "@/shared/constants/enums";
+import { Gender } from "@/shared/constants/types";
 import { MenuItemProps, StackProps } from "@chakra-ui/react";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { LucideIcon } from "lucide-react";
@@ -205,6 +205,12 @@ export interface Product extends CUD {
 }
 
 // Template
+export interface Template extends CUD {
+  id: string;
+  name: string;
+  type: string;
+  imagePath: string;
+}
 
 // Time
 

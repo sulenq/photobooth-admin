@@ -4,5 +4,6 @@ export const AUTH_API_SIGNUP = `/api/register`; // POST
 export const AUTH_API_SIGNIN = `/users/login`; // POST
 export const AUTH_API_SIGNOUT = `/api/logout`; // POST
 
-// Product
+// Featueres
 export const PRODUCT_BASE_ENDPOINT = `/product`;
+export const TEMPLATE_BASE_ENDPOINT = `/template`;

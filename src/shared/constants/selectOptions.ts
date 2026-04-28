@@ -6,3 +6,18 @@ export const OPTIONS_RELIGION = [
   { id: 5, label: "Konghucu" },
   { id: 6, label: "Kristen" },
 ];
+
+export const OPTIONS_TEMPLATE_TYPE = [
+  {
+    id: "A",
+    label: "Type A",
+  },
+  {
+    id: "B",
+    label: "Type B",
+  },
+  {
+    id: "C",
+    label: "Type C",
+  },
+];

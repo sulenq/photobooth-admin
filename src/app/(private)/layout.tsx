@@ -21,8 +21,8 @@ import { ProfileMenuTrigger } from "@/components/widgets/profile-menu";
 import { ScrollH } from "@/components/widgets/scroll-h";
 import { Today } from "@/components/widgets/today";
 import { NavBreadcrumb, TopBar, View } from "@/components/widgets/view";
-import { APP } from "@/constants/_meta";
-import { OTHER_PRIVATE_NAV_GROUPS, PRIVATE_NAV_GROUPS } from "@/constants/navs";
+import { APP } from "@/shared/constants/_meta";
+import { OTHER_PRIVATE_NAV_GROUPS, PRIVATE_NAV_GROUPS } from "@/shared/constants/navs";
 import {
   DESKTOP_ACTIVE_NAV_BTN_VARIANT,
   DESKTOP_NAV_BTN_ICON_BG,
@@ -38,17 +38,17 @@ import {
   MOBILE_POPOVER_MAIN_AXIS,
   R_SPACING_MD,
   TOP_BAR_H,
-} from "@/constants/styles";
+} from "@/shared/constants/styles";
 import { useLocale } from "@/contexts/useLocale";
 import useNavs from "@/contexts/useNavs";
 import { useThemeConfig } from "@/contexts/useThemeConfig";
 import { AuthGuard } from "@/features/auth/auth-guard";
 import { useIsSmScreenWidth } from "@/hooks/useIsSmScreenWidth";
 import { useScreen } from "@/hooks/useScreen";
-import { last } from "@/utils/array";
-import { getUserData } from "@/utils/auth";
-import { pluckString } from "@/utils/string";
-import { getActiveNavs, imgUrl } from "@/utils/url";
+import { last } from "@/shared/utils/array";
+import { getUserData } from "@/shared/utils/auth";
+import { pluckString } from "@/shared/utils/string";
+import { getActiveNavs, imgUrl } from "@/shared/utils/url";
 import { Center, HStack, VStack } from "@chakra-ui/react";
 import { ChevronsLeftIcon, ChevronsRightIcon, ServerIcon } from "lucide-react";
 import { usePathname } from "next/navigation";

@@ -1,3 +1,5 @@
+import { Interface__SelectOption } from "@/shared/constants/interfaces";
+
 export const isEmptyArray = (value: any[] | null | undefined) => {
   if (!value) return true;
 
@@ -9,7 +11,15 @@ export const isEmptyArray = (value: any[] | null | undefined) => {
 export const subset = <T>(A: T[], B: T[]): boolean => {
   return A.every((value) => B.includes(value));
 };
+
 export const last = <T>(arr: T[], defaultValue?: T): T | undefined => {
   if (!arr || arr.length === 0) return defaultValue;
   return arr[arr.length - 1];
+};
+
+export const getSelectOption = (
+  selectOptions: Interface__SelectOption[],
+  id: string,
+): Interface__SelectOption[] => {
+  return selectOptions.filter((o) => o.id === id);
 };

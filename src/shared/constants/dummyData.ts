@@ -1,5 +1,5 @@
-import { Gender } from "@/constants/types";
-import { Interface__User, Product } from "./interfaces";
+import { Gender } from "@/shared/constants/types";
+import { Interface__User, Product, Template } from "./interfaces";
 const generate1D = () => {
   let v23 = 80;
   let v24 = 90;
@@ -1151,4 +1151,26 @@ export const DUMMY_PRODUCTS: Product[] = [
   },
 ];
 
-export const DUMMY_TEMPLATES = [];
+export const DUMMY_TEMPLATES: Template[] = [
+  {
+    id: "1",
+    name: "Template A",
+    type: "A",
+    imagePath: "/images/templates/template-a.jpg",
+    createdAt: "2026-01-01T10:00:00.000Z",
+  },
+  {
+    id: "2",
+    name: "Template B",
+    type: "B",
+    imagePath: "/images/templates/template-b.jpg",
+    createdAt: "2026-01-05T12:30:00.000Z",
+  },
+  {
+    id: "3",
+    name: "Template C",
+    type: "C",
+    imagePath: "/images/templates/template-c.jpg",
+    createdAt: "2026-01-10T08:15:00.000Z",
+  },
+];
