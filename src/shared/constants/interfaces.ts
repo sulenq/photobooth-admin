@@ -212,8 +212,39 @@ export interface Template extends CUD {
   imagePath: string;
 }
 
-// Time
+// Time Rule
+export interface TimeRule extends CUD {
+  id: string;
+  name: string;
+  duration: number;
+}
 
 // Voucher
+export interface Voucher extends CUD {
+  id: string;
+  name: string;
+  value: string;
+  isPercentage: boolean;
+  isLimit: boolean;
+  limitQty: number | null;
+  limitRp: number | null;
+  dateFrom: string | null;
+  dateTo: string | null;
+  tenantId: string;
+}
 
 // Transaction
+export interface Transaction extends CUD {
+  id: string;
+  invoiceNumber: string;
+  productCode: string;
+  productName: string;
+  price: number;
+  qty: number;
+  voucherCode: string;
+  voucherPrice: number;
+  grandTotal: number;
+  tenantId: string;
+  transactionDate: string;
+  status: string;
+}

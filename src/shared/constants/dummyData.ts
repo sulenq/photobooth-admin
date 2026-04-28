@@ -1,5 +1,12 @@
 import { Gender } from "@/shared/constants/types";
-import { Interface__User, Product, Template } from "./interfaces";
+import {
+  Interface__User,
+  Product,
+  Template,
+  TimeRule,
+  Transaction,
+  Voucher,
+} from "./interfaces";
 const generate1D = () => {
   let v23 = 80;
   let v24 = 90;
@@ -1171,6 +1178,111 @@ export const DUMMY_TEMPLATES: Template[] = [
     name: "Template C",
     type: "C",
     imagePath: "/images/templates/template-c.jpg",
+    createdAt: "2026-01-10T08:15:00.000Z",
+  },
+];
+
+export const DUMMY_TIME_RULE: TimeRule[] = [
+  {
+    id: "1",
+    name: "QRIS Timeout",
+    duration: 1000,
+    createdAt: "2026-01-10T08:15:00.000Z",
+  },
+  {
+    id: "2",
+    name: "Photo Session",
+    duration: 1000,
+    createdAt: "2026-01-10T08:15:00.000Z",
+  },
+];
+
+export const DUMMY_VOUCHER: Voucher[] = [
+  {
+    id: "1",
+    name: "Voucher Diskon 10%",
+    value: "10",
+    isPercentage: true,
+    isLimit: false,
+    limitQty: null,
+    limitRp: null,
+    dateFrom: "2026-01-01T00:00:00.000Z",
+    dateTo: "2026-12-31T23:59:59.000Z",
+    tenantId: "TNT-001",
+    createdAt: "2026-01-01T10:00:00.000Z",
+  },
+  {
+    id: "2",
+    name: "Voucher Potongan 50K",
+    value: "50000",
+    isPercentage: false,
+    isLimit: true,
+    limitQty: 100,
+    limitRp: null,
+    dateFrom: "2026-02-01T00:00:00.000Z",
+    dateTo: "2026-06-30T23:59:59.000Z",
+    tenantId: "TNT-001",
+    createdAt: "2026-02-01T09:00:00.000Z",
+  },
+  {
+    id: "3",
+    name: "Voucher Cashback 20%",
+    value: "20",
+    isPercentage: true,
+    isLimit: true,
+    limitQty: null,
+    limitRp: 100000,
+    dateFrom: null,
+    dateTo: null,
+    tenantId: "TNT-002",
+    createdAt: "2026-03-10T08:30:00.000Z",
+  },
+];
+
+export const DUMMY_TRANSACTION: Transaction[] = [
+  {
+    id: "1",
+    invoiceNumber: "INV-001",
+    productCode: "PRD-001",
+    productName: "Wireless Mouse",
+    price: 150000,
+    qty: 2,
+    voucherCode: "DISC10",
+    voucherPrice: 30000,
+    grandTotal: 270000,
+    tenantId: "TNT-001",
+    transactionDate: "2026-01-01T10:00:00.000Z",
+    status: "SUCCESS",
+    createdAt: "2026-01-01T10:00:00.000Z",
+  },
+  {
+    id: "2",
+    invoiceNumber: "INV-002",
+    productCode: "PRD-002",
+    productName: "Mechanical Keyboard",
+    price: 450000,
+    qty: 1,
+    voucherCode: "",
+    voucherPrice: 0,
+    grandTotal: 450000,
+    tenantId: "TNT-001",
+    transactionDate: "2026-01-05T12:30:00.000Z",
+    status: "PENDING",
+    createdAt: "2026-01-05T12:30:00.000Z",
+  },
+  {
+    id: "3",
+    invoiceNumber: "INV-003",
+    productCode: "PRD-003",
+    productName: "USB-C Hub",
+    price: 250000,
+    qty: 3,
+    voucherCode: "CASHBACK20",
+    voucherPrice: 150000,
+    grandTotal: 600000,
+    tenantId: "TNT-002",
+    transactionDate: "2026-01-10T08:15:00.000Z",
+    status: "FAILED",
     createdAt: "2026-01-10T08:15:00.000Z",
   },
 ];

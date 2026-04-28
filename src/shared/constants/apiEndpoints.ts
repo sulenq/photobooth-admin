@@ -7,3 +7,6 @@ export const AUTH_API_SIGNOUT = `/api/logout`; // POST
 // Featueres
 export const PRODUCT_BASE_ENDPOINT = `/product`;
 export const TEMPLATE_BASE_ENDPOINT = `/template`;
+export const TIME_RULE_BASE_ENDPOINT = `/time-rule`;
+export const VOUCHER_BASE_ENDPOINT = `/voucher`;
+export const TRANSACTION_BASE_ENDPOINT = `/transaction`;

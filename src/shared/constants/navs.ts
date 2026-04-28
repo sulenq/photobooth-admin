@@ -40,8 +40,8 @@ export const PRIVATE_NAV_GROUPS: Interface__NavGroup[] = [
       },
       {
         icon: TimerIcon,
-        label: "Time",
-        path: `/time`,
+        label: "Time Rule",
+        path: `/time-rule`,
         allowedRoles: [],
       },
       {

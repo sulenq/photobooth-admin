@@ -6,8 +6,8 @@ import { Field, FieldsetRoot } from "@/components/ui/field";
 import { Img } from "@/components/ui/img";
 import { ImgInput } from "@/components/ui/img-input";
 import { Menu } from "@/components/ui/menu";
+import { NumInput } from "@/components/ui/number-input";
 import { SearchInput } from "@/components/ui/search-input";
-import { SelectInput } from "@/components/ui/select-input";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { StringInput } from "@/components/ui/string-input";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -24,6 +24,15 @@ import { Item } from "@/components/widgets/item";
 import { ScrollH } from "@/components/widgets/scroll-h";
 import { SimpleDisclosure } from "@/components/widgets/simple-disclosure";
 import { View, useViewContext } from "@/components/widgets/view";
+import { PRODUCT_BASE_ENDPOINT } from "@/shared/constants/apiEndpoints";
+import { DUMMY_PRODUCTS } from "@/shared/constants/dummyData";
+import {
+  BatchOptionsTableOptionGenerator,
+  DataConfig,
+  Product,
+  RowOptionsTableOptionGenerator,
+} from "@/shared/constants/interfaces";
+import { GAP, R_SPACING_MD } from "@/shared/constants/styles";
 import { useDataDisplay } from "@/contexts/useDataDisplay";
 import { useLocale } from "@/contexts/useLocale";
 import useRenderTrigger from "@/contexts/useRenderTrigger";
@@ -31,21 +40,10 @@ import { useThemeConfig } from "@/contexts/useThemeConfig";
 import { useFetchData } from "@/hooks/useFetchData";
 import { usePopDisclosure } from "@/hooks/usePopDisclosure";
 import { useRequest } from "@/hooks/useRequest";
-import { TEMPLATE_BASE_ENDPOINT } from "@/shared/constants/apiEndpoints";
-import { DUMMY_TEMPLATES } from "@/shared/constants/dummyData";
-import {
-  BatchOptionsTableOptionGenerator,
-  DataConfig,
-  Interface__SelectOption,
-  RowOptionsTableOptionGenerator,
-  Template,
-} from "@/shared/constants/interfaces";
-import { OPTIONS_TEMPLATE_TYPE } from "@/shared/constants/selectOptions";
-import { GAP, R_SPACING_MD } from "@/shared/constants/styles";
-import { getSelectOption, isEmptyArray, last } from "@/shared/utils/array";
+import { isEmptyArray, last } from "@/shared/utils/array";
 import { back } from "@/shared/utils/client";
 import { disclosureId } from "@/shared/utils/disclosure";
-import { formatDate } from "@/shared/utils/formatter";
+import { formatDate, formatNumber } from "@/shared/utils/formatter";
 import { capitalize, pluckString } from "@/shared/utils/string";
 import { getActiveNavs, imgUrl } from "@/shared/utils/url";
 import { HStack } from "@chakra-ui/react";
@@ -55,10 +53,10 @@ import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 
-type DataInterface = Template;
+type DataInterface = Product;
 
-const BASE_ENDPOINT = TEMPLATE_BASE_ENDPOINT;
-const PREFIX_ID = `template`;
+const BASE_ENDPOINT = PRODUCT_BASE_ENDPOINT;
+const PREFIX_ID = `product`;
 const DEFAULT_FILTER = {
   search: "",
 };
@@ -95,13 +93,15 @@ const Create = (props: CreateProps) => {
     validateOnChange: false,
     initialValues: {
       image: null as any[] | null,
+      code: "",
       name: "",
-      type: null as Interface__SelectOption[] | null,
+      price: null as number | null,
     },
     validationSchema: yup.object().shape({
       image: yup.array().required("Image is required"),
+      code: yup.string().required("Code is required"),
       name: yup.string().required("Name is required"),
-      type: yup.array().required("Type is required"),
+      price: yup.number().required("Price is required"),
     }),
     onSubmit: (values) => {
       console.debug(values);
@@ -109,9 +109,10 @@ const Create = (props: CreateProps) => {
       back();
 
       const payload = new FormData();
-      payload.append("image", values.image?.[0] || "");
       payload.append("name", values.name);
-      payload.append("type", values.type?.[0]?.id || "");
+      payload.append("code", values.code);
+      payload.append("price", values.price?.toString() || "");
+      payload.append("image", values.image?.[0] || "");
 
       const config = {
         url: `${BASE_ENDPOINT}/create`,
@@ -154,7 +155,7 @@ const Create = (props: CreateProps) => {
             <form id={ID} onSubmit={formik.handleSubmit}>
               <FieldsetRoot>
                 <Field
-                  label={"Template Image"}
+                  label={"Image"}
                   invalid={!!formik.errors.image}
                   errorText={formik.errors.image as string}
                 >
@@ -162,6 +163,19 @@ const Create = (props: CreateProps) => {
                     inputValue={formik.values.image}
                     onChange={(inputValue) => {
                       formik.setFieldValue("image", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Code"}
+                  invalid={!!formik.errors.code}
+                  errorText={formik.errors.code as string}
+                >
+                  <StringInput
+                    inputValue={formik.values.code}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("code", inputValue);
                     }}
                   />
                 </Field>
@@ -180,17 +194,14 @@ const Create = (props: CreateProps) => {
                 </Field>
 
                 <Field
-                  label={"Type"}
-                  invalid={!!formik.errors.type}
-                  errorText={formik.errors.type as string}
+                  label={"Price"}
+                  invalid={!!formik.errors.price}
+                  errorText={formik.errors.price as string}
                 >
-                  <SelectInput
-                    id={"create-template-type"}
-                    title={"Type"}
-                    selectOptions={OPTIONS_TEMPLATE_TYPE}
-                    inputValue={formik.values.type}
+                  <NumInput
+                    inputValue={formik.values.price}
                     onChange={(inputValue) => {
-                      formik.setFieldValue("type", inputValue);
+                      formik.setFieldValue("price", inputValue);
                     }}
                   />
                 </Field>
@@ -255,12 +266,14 @@ const Update = (props: UpdateProps) => {
     validateOnChange: false,
     initialValues: {
       image: null as any[] | null,
+      code: "",
       name: "",
-      type: null as Interface__SelectOption[] | null,
+      price: null as number | null,
     },
     validationSchema: yup.object().shape({
+      code: yup.string().required("Code is required"),
       name: yup.string().required("Name is required"),
-      type: yup.array().required("Type is required"),
+      price: yup.number().required("Price is required"),
     }),
     onSubmit: (values) => {
       console.debug(values);
@@ -268,9 +281,10 @@ const Update = (props: UpdateProps) => {
       back();
 
       const payload = new FormData();
-      payload.append("image", values.image?.[0] || "");
       payload.append("name", values.name);
-      payload.append("type", values.type?.[0]?.id || "");
+      payload.append("code", values.code);
+      payload.append("price", values.price?.toString() || "");
+      payload.append("image", values.image?.[0] || "");
 
       const config = {
         url: `${BASE_ENDPOINT}/update/${resolvedData?.id}`,
@@ -293,8 +307,9 @@ const Update = (props: UpdateProps) => {
   useEffect(() => {
     formik.setValues({
       image: null as any[] | null,
-      type: getSelectOption(OPTIONS_TEMPLATE_TYPE, resolvedData.type),
+      code: resolvedData.code,
       name: resolvedData.name,
+      price: resolvedData.price,
     });
   }, [open, resolvedData]);
 
@@ -321,7 +336,7 @@ const Update = (props: UpdateProps) => {
             <form id={ID} onSubmit={formik.handleSubmit}>
               <FieldsetRoot>
                 <Field
-                  label={"Replace Template Image"}
+                  label={"Replace Image"}
                   invalid={!!formik.errors.image}
                   errorText={formik.errors.image as string}
                 >
@@ -329,6 +344,19 @@ const Update = (props: UpdateProps) => {
                     inputValue={formik.values.image}
                     onChange={(inputValue) => {
                       formik.setFieldValue("image", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
+                  label={"Code"}
+                  invalid={!!formik.errors.code}
+                  errorText={formik.errors.code as string}
+                >
+                  <StringInput
+                    inputValue={formik.values.code}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("code", inputValue);
                     }}
                   />
                 </Field>
@@ -347,17 +375,14 @@ const Update = (props: UpdateProps) => {
                 </Field>
 
                 <Field
-                  label={"Type"}
-                  invalid={!!formik.errors.type}
-                  errorText={formik.errors.type as string}
+                  label={"Price"}
+                  invalid={!!formik.errors.price}
+                  errorText={formik.errors.price as string}
                 >
-                  <SelectInput
-                    id={"update-template-type"}
-                    title={"Type"}
-                    selectOptions={OPTIONS_TEMPLATE_TYPE}
-                    inputValue={formik.values.type}
+                  <NumInput
+                    inputValue={formik.values.price}
                     onChange={(inputValue) => {
-                      formik.setFieldValue("type", inputValue);
+                      formik.setFieldValue("price", inputValue);
                     }}
                   />
                 </Field>
@@ -604,7 +629,7 @@ const Data = (props: DataProps) => {
     setPage,
     pagination,
   } = useFetchData<DataInterface[]>({
-    initialData: DUMMY_TEMPLATES,
+    initialData: DUMMY_PRODUCTS,
     // TODO_DEV fetch data url
     url: ``,
     params: {
@@ -618,14 +643,18 @@ const Data = (props: DataProps) => {
   const dataProps: DataConfig = {
     headers: [
       {
-        th: "Template Image",
+        th: "Image",
       },
       {
         th: "Name",
         sortable: true,
       },
       {
-        th: "Type",
+        th: "Code",
+        sortable: true,
+      },
+      {
+        th: "Price",
         sortable: true,
       },
       {
@@ -653,8 +682,12 @@ const Data = (props: DataProps) => {
             td: item.name,
           },
           {
-            value: item.type,
-            td: item.type,
+            value: item.code,
+            td: item.code,
+          },
+          {
+            value: item.price,
+            td: `Rp ${formatNumber(item.price)}`,
           },
           {
             value: item.createdAt,
@@ -763,10 +796,7 @@ const Data = (props: DataProps) => {
                 imgSrc: imgUrl(resolvedItem.imagePath),
                 showImg: true,
                 title: resolvedItem.name,
-                description: getSelectOption(
-                  OPTIONS_TEMPLATE_TYPE,
-                  resolvedItem.type,
-                )?.[0]?.label,
+                description: `Rp ${formatNumber(resolvedItem.price)}`,
               }}
               dataProps={dataProps}
               row={row}
