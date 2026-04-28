@@ -175,7 +175,7 @@ const Data = (props: DataProps) => {
           },
           {
             value: item.qty,
-            td: `${item.qty}x`,
+            td: `x${item.qty}`,
             dataType: "number",
           },
           {
