@@ -97,7 +97,12 @@ const Create = (props: CreateProps) => {
       name: "",
       price: null as number | null,
     },
-    validationSchema: yup.object().shape({}),
+    validationSchema: yup.object().shape({
+      image: yup.array().required("Image is required"),
+      code: yup.string().required("Code is required"),
+      name: yup.string().required("Name is required"),
+      price: yup.number().required("Price is required"),
+    }),
     onSubmit: (values) => {
       console.debug(values);
 
@@ -265,7 +270,11 @@ const Update = (props: UpdateProps) => {
       name: "",
       price: null as number | null,
     },
-    validationSchema: yup.object().shape({}),
+    validationSchema: yup.object().shape({
+      code: yup.string().required("Code is required"),
+      name: yup.string().required("Name is required"),
+      price: yup.number().required("Price is required"),
+    }),
     onSubmit: (values) => {
       console.debug(values);
 
