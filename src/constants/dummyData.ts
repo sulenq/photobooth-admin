@@ -1119,6 +1119,8 @@ export const dummyAllActivityLogs = [
   },
 ];
 
+// -----------------------------------------------------------------
+
 export const DUMMY_PRODUCTS: Product[] = [
   {
     id: "1",
@@ -1148,3 +1150,5 @@ export const DUMMY_PRODUCTS: Product[] = [
     createdAt: "2026-01-10T08:15:00.000Z",
   },
 ];
+
+export const DUMMY_TEMPLATES = [];

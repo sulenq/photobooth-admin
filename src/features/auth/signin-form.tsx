@@ -14,7 +14,7 @@ import { LucideIcon } from "@/components/widgets/icon";
 import { Logo } from "@/components/widgets/logo";
 import { UserIdCard } from "@/components/widgets/user-id-card";
 import { APP } from "@/constants/_meta";
-import { AUTH_API_SIGNIN } from "@/constants/apis";
+import { AUTH_API_SIGNIN } from "@/constants/apiEndpoints";
 import { Interface__User } from "@/constants/interfaces";
 import { BASE_ICON_BOX_SIZE } from "@/constants/styles";
 import { useAuthMiddleware } from "@/contexts/useAuthMiddleware";

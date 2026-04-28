@@ -24,6 +24,7 @@ import { Item } from "@/components/widgets/item";
 import { ScrollH } from "@/components/widgets/scroll-h";
 import { SimpleDisclosure } from "@/components/widgets/simple-disclosure";
 import { View, useViewContext } from "@/components/widgets/view";
+import { PRODUCT_BASE_ENDPOINT } from "@/constants/apiEndpoints";
 import { DUMMY_PRODUCTS } from "@/constants/dummyData";
 import {
   BatchOptionsTableOptionGenerator,
@@ -54,7 +55,7 @@ import * as yup from "yup";
 
 type DataInterface = Product;
 
-const BASE_ENDPOINT = `/products`;
+const BASE_ENDPOINT = PRODUCT_BASE_ENDPOINT;
 const PREFIX_ID = `product`;
 const DEFAULT_FILTER = {
   search: "",
@@ -80,10 +81,10 @@ const Create = (props: CreateProps) => {
   const { req, loading } = useRequest({
     id: ID,
     loadingMessage: {
-      title: capitalize(`Tambah ${routeTitle}`),
+      title: capitalize(`Add ${routeTitle}`),
     },
     successMessage: {
-      title: capitalize(`Tambah ${routeTitle} ${t.successful}`),
+      title: capitalize(`Add ${routeTitle} ${t.successful}`),
     },
   });
 
@@ -758,7 +759,7 @@ const Data = (props: DataProps) => {
         setLimit={setLimit}
         page={page}
         setPage={setPage}
-        totalPage={pagination?.meta?.lastPage}
+        totalPage={pagination?.meta?.totalPage}
       />
     ) : (
       <DataGrid.Display
@@ -768,7 +769,7 @@ const Data = (props: DataProps) => {
         setLimit={setLimit}
         page={page}
         setPage={setPage}
-        totalPage={pagination?.meta?.lastPage}
+        totalPage={pagination?.meta?.totalPage}
         gridItem={({
           item,
           row,

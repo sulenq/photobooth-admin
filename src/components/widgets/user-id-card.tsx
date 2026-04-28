@@ -9,7 +9,7 @@ import { AppIconLucide } from "@/components/widgets/app-icon";
 import { Logo } from "@/components/widgets/logo";
 import { MContainerV } from "@/components/widgets/m-container";
 import { APP } from "@/constants/_meta";
-import { AUTH_API_SIGNOUT } from "@/constants/apis";
+import { AUTH_API_SIGNOUT } from "@/constants/apiEndpoints";
 import { DUMMY_USER } from "@/constants/dummyData";
 import { useAuthMiddleware } from "@/contexts/useAuthMiddleware";
 import { useLocale } from "@/contexts/useLocale";

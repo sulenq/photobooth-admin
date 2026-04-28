@@ -104,17 +104,17 @@ export const useFetchData = <T = any>(props: UseFetchDataOptions<T>) => {
         config,
         onResolve: {
           onSuccess: (r) => {
-            setPagination(r?.data?.data?.pagination);
+            setPagination(r?.data?.result?.pagination);
             setInitialLoading(false);
             if (dummyData) {
               setData(dummyData);
             } else {
               setData(
                 dataResource
-                  ? Array.isArray(r?.data?.data)
-                    ? r?.data?.data
-                    : r?.data?.data?.data
-                  : r?.data?.data,
+                  ? Array.isArray(r?.data?.result)
+                    ? r?.data?.result
+                    : r?.data?.result?.data
+                  : r?.data?.result,
               );
             }
           },

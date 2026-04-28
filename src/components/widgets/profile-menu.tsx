@@ -13,7 +13,7 @@ import { ClampText } from "@/components/widgets/clamp-text";
 import { Confirmation } from "@/components/widgets/confirmation";
 import { LucideIcon } from "@/components/widgets/icon";
 import { DotIndicator } from "@/components/widgets/indicator";
-import { AUTH_API_SIGNOUT } from "@/constants/apis";
+import { AUTH_API_SIGNOUT } from "@/constants/apiEndpoints";
 import {
   BACKDROP_BLUR_FILTER,
   BASE_ICON_BOX_SIZE,
