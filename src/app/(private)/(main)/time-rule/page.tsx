@@ -220,7 +220,7 @@ const Data = (props: DataProps) => {
     setPage,
     pagination,
   } = useFetchData<DataInterface[]>({
-    initialData: DUMMY_TIME_RULE,
+    dummyData: DUMMY_TIME_RULE,
     // TODO_DEV fetch data url
     url: ``,
   });

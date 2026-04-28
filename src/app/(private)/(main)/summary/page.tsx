@@ -536,7 +536,7 @@ export default function Page() {
   // States
   const [filter] = useState<any>(DEFAULT_FILTER);
   const { initialLoading, error, data, onRetry } = useFetchData<any>({
-    initialData: DUMMY_DASHBOARD_DATA,
+    dummyData: DUMMY_DASHBOARD_DATA,
     // url: ``,
     dataResource: false,
   });

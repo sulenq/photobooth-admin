@@ -629,7 +629,7 @@ const Data = (props: DataProps) => {
     setPage,
     pagination,
   } = useFetchData<DataInterface[]>({
-    initialData: DUMMY_PRODUCTS,
+    dummyData: DUMMY_PRODUCTS,
     // TODO_DEV fetch data url
     url: ``,
     params: {

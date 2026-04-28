@@ -81,7 +81,10 @@ export const useFetchData = <T = any>(props: UseFetchDataOptions<T>) => {
 
   // Utils
   function makeRequest() {
-    if (!url) return;
+    if (dummyData || !url) {
+      setInitialLoading(false);
+      return;
+    }
 
     latestUrlRef.current = url;
 

@@ -499,7 +499,7 @@ export default function Page() {
   // States
   const { error, initialLoading, data, onRetry } =
     useFetchData<Interface__User>({
-      initialData: DUMMY_USER,
+      dummyData: DUMMY_USER,
       url: ``,
       dataResource: false,
     });
