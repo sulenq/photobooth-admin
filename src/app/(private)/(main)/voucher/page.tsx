@@ -42,7 +42,7 @@ import { disclosureId } from "@/shared/utils/disclosure";
 import { formatDate, formatNumber } from "@/shared/utils/formatter";
 import { capitalize, pluckString } from "@/shared/utils/string";
 import { getActiveNavs } from "@/shared/utils/url";
-import { HStack } from "@chakra-ui/react";
+import { Badge, HStack } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { EditIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -691,18 +691,24 @@ const Data = (props: DataProps) => {
       ? `${item.value}%`
       : `Rp ${formatNumber(parseFloat(item.value))}`;
   }
-
   function formatLimit(item: DataInterface) {
     if (!item.isLimit) return "No Limit";
     if (item.limitQty != null) return `${formatNumber(item.limitQty)} pcs`;
     if (item.limitRp != null) return `Rp ${formatNumber(item.limitRp)}`;
     return "-";
   }
-
   function formatPeriod(item: DataInterface) {
     if (!item.dateFrom && !item.dateTo) return "No Limit";
-    const from = item.dateFrom ? formatDate(item.dateFrom, t) : "?";
-    const to = item.dateTo ? formatDate(item.dateTo, t) : "?";
+    const from = item.dateFrom
+      ? formatDate(item.dateFrom, t, {
+          variant: "dayShortMonthYear",
+        })
+      : "?";
+    const to = item.dateTo
+      ? formatDate(item.dateTo, t, {
+          variant: "dayShortMonthYear",
+        })
+      : "?";
     return `${from} – ${to}`;
   }
 
@@ -724,11 +730,23 @@ const Data = (props: DataProps) => {
         th: "Period",
       },
       {
+        th: "Used",
+        sortable: true,
+      },
+      {
+        th: "Status",
+        sortable: true,
+      },
+      {
         th: "Created At",
         sortable: true,
       },
     ],
     rows: data?.map((item, idx) => {
+      const now = new Date();
+      const dateTo = item.dateTo ? new Date(item.dateTo) : null;
+      const isValid = dateTo ? dateTo <= now : true;
+
       return {
         id: item.id,
         idx: idx,
@@ -750,6 +768,19 @@ const Data = (props: DataProps) => {
           {
             value: item.dateFrom,
             td: formatPeriod(item),
+          },
+          {
+            value: item.used,
+            td: `${formatNumber(item.used)} x`,
+            dataType: "number",
+          },
+          {
+            value: item.dateTo,
+            td: (
+              <Badge colorPalette={isValid ? "green" : "red"}>
+                {isValid ? "Active" : "Expired"}
+              </Badge>
+            ),
           },
           {
             value: item.createdAt,

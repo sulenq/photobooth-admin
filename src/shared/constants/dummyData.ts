@@ -1210,7 +1210,7 @@ export const DUMMY_VOUCHER: Voucher[] = [
     dateTo: "2026-12-31T23:59:59.000Z",
     tenantId: "TNT-001",
     createdAt: "2026-01-01T10:00:00.000Z",
-    used: 1,
+    used: 24,
   },
   {
     id: "2",
@@ -1224,7 +1224,7 @@ export const DUMMY_VOUCHER: Voucher[] = [
     dateTo: "2026-06-30T23:59:59.000Z",
     tenantId: "TNT-001",
     createdAt: "2026-02-01T09:00:00.000Z",
-    used: 1,
+    used: 0,
   },
   {
     id: "3",
@@ -1238,7 +1238,7 @@ export const DUMMY_VOUCHER: Voucher[] = [
     dateTo: null,
     tenantId: "TNT-002",
     createdAt: "2026-03-10T08:30:00.000Z",
-    used: 1,
+    used: 15,
   },
 ];
 
