@@ -615,7 +615,7 @@ const Data = (props: DataProps) => {
   });
 
   // Derived Values
-  const dataProps: DataConfig = {
+  const dataConfig: DataConfig = {
     headers: [
       {
         th: "Template Image",
@@ -727,10 +727,10 @@ const Data = (props: DataProps) => {
     empty: <FeedbackNoData />,
     loaded: displayTable ? (
       <DataTable.Display
-        headers={dataProps.headers}
-        rows={dataProps.rows}
-        rowOptions={dataProps.rowOptions}
-        batchOptions={dataProps.batchOptions}
+        headers={dataConfig.headers}
+        rows={dataConfig.rows}
+        rowOptions={dataConfig.rowOptions}
+        batchOptions={dataConfig.batchOptions}
         limit={limit}
         setLimit={setLimit}
         page={page}
@@ -740,7 +740,7 @@ const Data = (props: DataProps) => {
     ) : (
       <DataGrid.Display
         data={data}
-        dataProps={dataProps}
+        dataConfig={dataConfig}
         limit={limit}
         setLimit={setLimit}
         page={page}
@@ -768,7 +768,7 @@ const Data = (props: DataProps) => {
                   resolvedItem.type,
                 )?.[0]?.label,
               }}
-              dataProps={dataProps}
+              dataConfig={dataConfig}
               row={row}
               selectedRows={selectedRows}
               toggleRowSelection={toggleRowSelection}
