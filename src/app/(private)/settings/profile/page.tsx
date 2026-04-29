@@ -92,7 +92,7 @@ const PersonalInformation = (props: PersonalInformationProps) => {
     onSubmit: (values) => {
       const config = {
         url: `/update-users/${initialData?.id}`,
-        method: "PATCH",
+        method: "UPDATE",
         data: {
           avatar: values.avatar,
           deleteAvatarIds: values.deleteAvatarIds,

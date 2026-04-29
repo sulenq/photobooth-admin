@@ -52,7 +52,7 @@ const APIKeys = (props: any) => {
 
       const config = {
         url: ``,
-        method: "PATCH",
+        method: "UPDATE",
         data: values,
       };
 

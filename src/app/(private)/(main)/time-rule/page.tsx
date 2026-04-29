@@ -102,7 +102,7 @@ const Update = (props: UpdateProps) => {
 
       const config = {
         url: `${BASE_ENDPOINT}/update/${resolvedData?.id}`,
-        method: "PATCH",
+        method: "UPDATE",
         data: payload,
       };
 
