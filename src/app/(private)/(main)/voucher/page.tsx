@@ -2,14 +2,12 @@
 
 import { Btn, BtnProps } from "@/components/ui/btn";
 import { CContainer } from "@/components/ui/c-container";
-import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { Field, FieldsetRoot } from "@/components/ui/field";
 import { Menu } from "@/components/ui/menu";
 import { NumInput } from "@/components/ui/number-input";
 import { SearchInput } from "@/components/ui/search-input";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { StringInput } from "@/components/ui/string-input";
-import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
 import { AppIconLucide } from "@/components/widgets/app-icon";
 import { BackButton } from "@/components/widgets/back-button";
@@ -28,7 +26,7 @@ import { useFetchData } from "@/hooks/useFetchData";
 import { usePopDisclosure } from "@/hooks/usePopDisclosure";
 import { useRequest } from "@/hooks/useRequest";
 import { VOUCHER_BASE_ENDPOINT } from "@/shared/constants/apiEndpoints";
-import { DUMMY_VOUCHER } from "@/shared/constants/dummyData";
+import { DUMMY_VOUCHERS } from "@/shared/constants/dummyData";
 import {
   BatchOptionsTableOptionGenerator,
   DataConfig,
@@ -91,30 +89,28 @@ const Create = (props: CreateProps) => {
     validateOnChange: false,
     initialValues: {
       name: "",
+      budget: null as number | null,
       value: null as number | null,
-      isPercentage: false,
-      isLimit: false,
-      limitQty: null as number | null,
-      limitRp: null as number | null,
-      dateFrom: null as string[] | null,
-      dateTo: null as string[] | null,
     },
     validationSchema: yup.object().shape({
       name: yup.string().required("Name is required"),
-      value: yup.number().required("Value is required"),
+      budget: yup.number().required("Budget is required"),
+      value: yup
+        .number()
+        .required("Value is required")
+        .test("divisible", "Value must divide budget evenly", function (value) {
+          const { budget } = this.parent;
+          if (!budget || !value) return true;
+          return budget % value === 0;
+        }),
     }),
     onSubmit: (values) => {
       back();
 
       const payload = {
         name: values.name,
-        value: values.value?.toString() || "",
-        isPercentage: values.isPercentage,
-        isLimit: values.isLimit,
-        limitQty: values.isLimit ? values.limitQty : null,
-        limitRp: values.isLimit ? values.limitRp : null,
-        dateFrom: values.dateFrom?.[0] || null,
-        dateTo: values.dateTo?.[0] || null,
+        budget: values.budget,
+        value: values.value,
       };
 
       const config = {
@@ -169,6 +165,19 @@ const Create = (props: CreateProps) => {
                 </Field>
 
                 <Field
+                  label={"Budget"}
+                  invalid={!!formik.errors.budget}
+                  errorText={formik.errors.budget as string}
+                >
+                  <NumInput
+                    inputValue={formik.values.budget}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("budget", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
                   label={"Value"}
                   invalid={!!formik.errors.value}
                   errorText={formik.errors.value as string}
@@ -181,89 +190,14 @@ const Create = (props: CreateProps) => {
                   />
                 </Field>
 
-                <Field label={"Percentage"}>
-                  <Switch
-                    checked={formik.values.isPercentage}
-                    onCheckedChange={(details) => {
-                      formik.setFieldValue("isPercentage", details.checked);
-                    }}
-                    colorPalette={themeConfig.colorPalette}
-                  >
-                    Percentage
-                  </Switch>
-                </Field>
-
-                <Field label={"Has Limit"}>
-                  <Switch
-                    checked={formik.values.isLimit}
-                    onCheckedChange={(details) => {
-                      formik.setFieldValue("isLimit", details.checked);
-                      if (!details.checked) {
-                        formik.setFieldValue("limitQty", null);
-                        formik.setFieldValue("limitRp", null);
-                      }
-                    }}
-                    colorPalette={themeConfig.colorPalette}
-                  >
-                    Has Limit
-                  </Switch>
-                </Field>
-
-                {formik.values.isLimit && (
-                  <>
-                    <Field
-                      label={"Limit Qty"}
-                      invalid={!!formik.errors.limitQty}
-                      errorText={formik.errors.limitQty as string}
-                    >
-                      <NumInput
-                        inputValue={formik.values.limitQty}
-                        onChange={(inputValue) => {
-                          formik.setFieldValue("limitQty", inputValue);
-                        }}
-                      />
-                    </Field>
-
-                    <Field
-                      label={"Limit Rp"}
-                      invalid={!!formik.errors.limitRp}
-                      errorText={formik.errors.limitRp as string}
-                    >
-                      <NumInput
-                        inputValue={formik.values.limitRp}
-                        onChange={(inputValue) => {
-                          formik.setFieldValue("limitRp", inputValue);
-                        }}
-                      />
-                    </Field>
-                  </>
-                )}
-
-                <Field
-                  label={"Date From"}
-                  invalid={!!formik.errors.dateFrom}
-                  errorText={formik.errors.dateFrom as string}
-                >
-                  <DatePickerInput
-                    id={`${ID}-date-from`}
-                    inputValue={formik.values.dateFrom}
-                    onChange={(inputValue) => {
-                      formik.setFieldValue("dateFrom", inputValue);
-                    }}
-                  />
-                </Field>
-
-                <Field
-                  label={"Date To"}
-                  invalid={!!formik.errors.dateTo}
-                  errorText={formik.errors.dateTo as string}
-                >
-                  <DatePickerInput
-                    id={`${ID}-date-to`}
-                    inputValue={formik.values.dateTo}
-                    onChange={(inputValue) => {
-                      formik.setFieldValue("dateTo", inputValue);
-                    }}
+                <Field label={"Amount"}>
+                  <NumInput
+                    inputValue={
+                      formik.values.budget && formik.values.value
+                        ? formik.values.budget / formik.values.value
+                        : 0
+                    }
+                    readOnly
                   />
                 </Field>
               </FieldsetRoot>
@@ -327,16 +261,12 @@ const Update = (props: UpdateProps) => {
     validateOnChange: false,
     initialValues: {
       name: "",
+      budget: null as number | null,
       value: null as number | null,
-      isPercentage: false,
-      isLimit: false,
-      limitQty: null as number | null,
-      limitRp: null as number | null,
-      dateFrom: null as string[] | null,
-      dateTo: null as string[] | null,
     },
     validationSchema: yup.object().shape({
       name: yup.string().required("Name is required"),
+      budget: yup.number().required("Budget is required"),
       value: yup.number().required("Value is required"),
     }),
     onSubmit: (values) => {
@@ -344,13 +274,8 @@ const Update = (props: UpdateProps) => {
 
       const payload = {
         name: values.name,
-        value: values.value?.toString() || "",
-        isPercentage: values.isPercentage,
-        isLimit: values.isLimit,
-        limitQty: values.isLimit ? values.limitQty : null,
-        limitRp: values.isLimit ? values.limitRp : null,
-        dateFrom: values.dateFrom?.[0] || null,
-        dateTo: values.dateTo?.[0] || null,
+        budget: values.budget,
+        value: values.value,
       };
 
       const config = {
@@ -374,13 +299,8 @@ const Update = (props: UpdateProps) => {
   useEffect(() => {
     formik.setValues({
       name: resolvedData.name,
-      value: parseFloat(resolvedData.value),
-      isPercentage: resolvedData.isPercentage,
-      isLimit: resolvedData.isLimit,
-      limitQty: resolvedData.limitQty,
-      limitRp: resolvedData.limitRp,
-      dateFrom: resolvedData.dateFrom ? [resolvedData.dateFrom] : null,
-      dateTo: resolvedData.dateTo ? [resolvedData.dateTo] : null,
+      budget: resolvedData.budget,
+      value: resolvedData.value,
     });
   }, [open, resolvedData]);
 
@@ -419,6 +339,19 @@ const Update = (props: UpdateProps) => {
                 </Field>
 
                 <Field
+                  label={"Budget"}
+                  invalid={!!formik.errors.budget}
+                  errorText={formik.errors.budget as string}
+                >
+                  <NumInput
+                    inputValue={formik.values.budget}
+                    onChange={(inputValue) => {
+                      formik.setFieldValue("budget", inputValue);
+                    }}
+                  />
+                </Field>
+
+                <Field
                   label={"Value"}
                   invalid={!!formik.errors.value}
                   errorText={formik.errors.value as string}
@@ -431,89 +364,14 @@ const Update = (props: UpdateProps) => {
                   />
                 </Field>
 
-                <Field label={"Percentage"}>
-                  <Switch
-                    checked={formik.values.isPercentage}
-                    onCheckedChange={(details) => {
-                      formik.setFieldValue("isPercentage", details.checked);
-                    }}
-                    colorPalette={themeConfig.colorPalette}
-                  >
-                    Percentage
-                  </Switch>
-                </Field>
-
-                <Field label={"Has Limit"}>
-                  <Switch
-                    checked={formik.values.isLimit}
-                    onCheckedChange={(details) => {
-                      formik.setFieldValue("isLimit", details.checked);
-                      if (!details.checked) {
-                        formik.setFieldValue("limitQty", null);
-                        formik.setFieldValue("limitRp", null);
-                      }
-                    }}
-                    colorPalette={themeConfig.colorPalette}
-                  >
-                    Has Limit
-                  </Switch>
-                </Field>
-
-                {formik.values.isLimit && (
-                  <>
-                    <Field
-                      label={"Limit Qty"}
-                      invalid={!!formik.errors.limitQty}
-                      errorText={formik.errors.limitQty as string}
-                    >
-                      <NumInput
-                        inputValue={formik.values.limitQty}
-                        onChange={(inputValue) => {
-                          formik.setFieldValue("limitQty", inputValue);
-                        }}
-                      />
-                    </Field>
-
-                    <Field
-                      label={"Limit Rp"}
-                      invalid={!!formik.errors.limitRp}
-                      errorText={formik.errors.limitRp as string}
-                    >
-                      <NumInput
-                        inputValue={formik.values.limitRp}
-                        onChange={(inputValue) => {
-                          formik.setFieldValue("limitRp", inputValue);
-                        }}
-                      />
-                    </Field>
-                  </>
-                )}
-
-                <Field
-                  label={"Date From"}
-                  invalid={!!formik.errors.dateFrom}
-                  errorText={formik.errors.dateFrom as string}
-                >
-                  <DatePickerInput
-                    id={`${ID}-date-from-${resolvedData?.id}`}
-                    inputValue={formik.values.dateFrom}
-                    onChange={(inputValue) => {
-                      formik.setFieldValue("dateFrom", inputValue);
-                    }}
-                  />
-                </Field>
-
-                <Field
-                  label={"Date To"}
-                  invalid={!!formik.errors.dateTo}
-                  errorText={formik.errors.dateTo as string}
-                >
-                  <DatePickerInput
-                    id={`${ID}-date-to-${resolvedData?.id}`}
-                    inputValue={formik.values.dateTo}
-                    onChange={(inputValue) => {
-                      formik.setFieldValue("dateTo", inputValue);
-                    }}
+                <Field label={"Amount"}>
+                  <NumInput
+                    inputValue={
+                      formik.values.budget && formik.values.value
+                        ? formik.values.budget / formik.values.value
+                        : 0
+                    }
+                    readOnly
                   />
                 </Field>
               </FieldsetRoot>
@@ -676,7 +534,7 @@ const Data = (props: DataProps) => {
     setPage,
     pagination,
   } = useFetchData<DataInterface[]>({
-    dummyData: DUMMY_VOUCHER,
+    dummyData: DUMMY_VOUCHERS,
     // TODO_DEV fetch data url
     url: ``,
     params: {
@@ -684,33 +542,6 @@ const Data = (props: DataProps) => {
     },
     dependencies: [filter],
   });
-
-  // Helpers
-  function formatValue(item: DataInterface) {
-    return item.isPercentage
-      ? `${item.value}%`
-      : `Rp ${formatNumber(parseFloat(item.value))}`;
-  }
-  function formatLimit(item: DataInterface) {
-    if (!item.isLimit) return "No Limit";
-    if (item.limitQty != null) return `${formatNumber(item.limitQty)} pcs`;
-    if (item.limitRp != null) return `Rp ${formatNumber(item.limitRp)}`;
-    return "-";
-  }
-  function formatPeriod(item: DataInterface) {
-    if (!item.dateFrom && !item.dateTo) return "No Limit";
-    const from = item.dateFrom
-      ? formatDate(item.dateFrom, t, {
-          variant: "dayShortMonthYear",
-        })
-      : "?";
-    const to = item.dateTo
-      ? formatDate(item.dateTo, t, {
-          variant: "dayShortMonthYear",
-        })
-      : "?";
-    return `${from} – ${to}`;
-  }
 
   // Derived Values
   const dataConfig: DataConfig = {
@@ -720,17 +551,23 @@ const Data = (props: DataProps) => {
         sortable: true,
       },
       {
+        th: "Budget",
+        sortable: true,
+      },
+      {
         th: "Value",
         sortable: true,
       },
       {
-        th: "Limit",
+        th: "Amount Total",
+        sortable: true,
       },
       {
-        th: "Period",
+        th: "Amount Used",
+        sortable: true,
       },
       {
-        th: "Used",
+        th: "Amount Left",
         sortable: true,
       },
       {
@@ -743,9 +580,7 @@ const Data = (props: DataProps) => {
       },
     ],
     rows: data?.map((item, idx) => {
-      const now = new Date();
-      const dateTo = item.dateTo ? new Date(item.dateTo) : null;
-      const isValid = dateTo ? dateTo <= now : true;
+      const isValid = item.amount - item.used !== 0;
 
       return {
         id: item.id,
@@ -758,27 +593,33 @@ const Data = (props: DataProps) => {
             td: item.name,
           },
           {
+            value: item.budget,
+            td: formatNumber(item.budget),
+          },
+          {
             value: item.value,
-            td: formatValue(item),
+            td: formatNumber(item.value),
           },
           {
-            value: item.limitQty ?? item.limitRp ?? 0,
-            td: formatLimit(item),
-          },
-          {
-            value: item.dateFrom,
-            td: formatPeriod(item),
-          },
-          {
-            value: item.used,
-            td: `${formatNumber(item.used)} x`,
+            value: item.amount,
+            td: `${formatNumber(item.amount)}`,
             dataType: "number",
           },
           {
-            value: item.dateTo,
+            value: item.used,
+            td: `${formatNumber(item.used)}`,
+            dataType: "number",
+          },
+          {
+            value: item.amount - item.used,
+            td: `${formatNumber(item.amount - item.used)}`,
+            dataType: "number",
+          },
+          {
+            value: item.createdAt,
             td: (
               <Badge colorPalette={isValid ? "green" : "red"}>
-                {isValid ? "Active" : "Expired"}
+                {isValid ? "Valid" : "Expired"}
               </Badge>
             ),
           },

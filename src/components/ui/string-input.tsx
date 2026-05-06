@@ -162,7 +162,7 @@ export const StringInput = forwardRef<HTMLInputElement, StringInputProps>(
             {...restProps}
           />
 
-          {inputValue && clearable && !disabled && (
+          {inputValue && clearable && !disabled && !restProps?.readOnly && (
             <Center
               flexShrink={0}
               zIndex={2}

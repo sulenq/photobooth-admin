@@ -232,15 +232,11 @@ export interface TimeRule extends CUD {
 // Voucher
 export interface Voucher extends CUD {
   id: string;
-  name: string;
-  value: string;
-  isPercentage: boolean;
-  isLimit: boolean;
-  limitQty: number | null;
-  limitRp: number | null;
-  dateFrom: string | null;
-  dateTo: string | null;
   tenantId: string;
+  name: string;
+  budget: number;
+  value: number;
+  amount: number;
   used: number;
 }
 
