@@ -10,7 +10,6 @@ import { StringInput } from "@/components/ui/string-input";
 import { Tooltip } from "@/components/ui/tooltip";
 import { AppIconLucide } from "@/components/widgets/app-icon";
 import { BackButton } from "@/components/widgets/back-button";
-import { Confirmation } from "@/components/widgets/confirmation";
 import { DataTable } from "@/components/widgets/data-table";
 import FeedbackNoData from "@/components/widgets/feedback-no-data";
 import FeedbackRetry from "@/components/widgets/feedback-retry";
@@ -40,7 +39,7 @@ import { capitalize, pluckString } from "@/shared/utils/string";
 import { getActiveNavs } from "@/shared/utils/url";
 import { HStack } from "@chakra-ui/react";
 import { useFormik } from "formik";
-import { EditIcon, TrashIcon } from "lucide-react";
+import { EditIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import * as yup from "yup";
@@ -428,82 +427,82 @@ const Update = (props: UpdateProps) => {
 
 // -----------------------------------------------------------------
 
-const Delete = (props: any) => {
-  const ID = `${PREFIX_ID}_delete`;
+// const Delete = (props: any) => {
+//   const ID = `${PREFIX_ID}_delete`;
 
-  // Props
-  const { deleteIds, clearSelectedRows, disabled, routeTitle } = props;
+//   // Props
+//   const { deleteIds, clearSelectedRows, disabled, routeTitle } = props;
 
-  // Contexts
-  const { t } = useLocale();
-  const setRt = useRenderTrigger((s) => s.setRt);
+//   // Contexts
+//   const { t } = useLocale();
+//   const setRt = useRenderTrigger((s) => s.setRt);
 
-  // Hooks
-  const { req, loading } = useRequest({
-    id: ID,
-    loadingMessage: {
-      title: capitalize(`${t.delete_} ${routeTitle}`),
-    },
-    successMessage: {
-      title: capitalize(`${t.delete_} ${routeTitle} ${t.successful}`),
-    },
-  });
+//   // Hooks
+//   const { req, loading } = useRequest({
+//     id: ID,
+//     loadingMessage: {
+//       title: capitalize(`${t.delete_} ${routeTitle}`),
+//     },
+//     successMessage: {
+//       title: capitalize(`${t.delete_} ${routeTitle} ${t.successful}`),
+//     },
+//   });
 
-  // Utils
-  function onDeactivate() {
-    back();
-    req({
-      config: {
-        url: `${BASE_ENDPOINT}/delete`,
-        method: "DELETE",
-        data: {
-          deleteIds: deleteIds,
-        },
-      },
-      onResolve: {
-        onSuccess: () => {
-          setRt((ps) => !ps);
-          clearSelectedRows?.();
-        },
-      },
-    });
-  }
+//   // Utils
+//   function onDeactivate() {
+//     back();
+//     req({
+//       config: {
+//         url: `${BASE_ENDPOINT}/delete`,
+//         method: "DELETE",
+//         data: {
+//           deleteIds: deleteIds,
+//         },
+//       },
+//       onResolve: {
+//         onSuccess: () => {
+//           setRt((ps) => !ps);
+//           clearSelectedRows?.();
+//         },
+//       },
+//     });
+//   }
 
-  return (
-    <Confirmation.Trigger
-      w={"full"}
-      id={`${ID}-${deleteIds}`}
-      title={`${t.delete_} ${routeTitle}`}
-      description={t.msg_soft_delete}
-      confirmLabel={`${t.delete_}`}
-      onConfirm={onDeactivate}
-      confirmButtonProps={{
-        colorPalette: "gray",
-        variant: "outline",
-        color: "fg.error",
-      }}
-      loading={loading}
-      disabled={disabled}
-    >
-      <Tooltip
-        content={t.delete_}
-        positioning={{
-          placement: "right",
-        }}
-      >
-        <Menu.Item
-          value={"delete"}
-          disabled={disabled}
-          color={"fg.error"}
-          transition={"200ms"}
-        >
-          <AppIconLucide icon={TrashIcon} />
-          {t.delete_}
-        </Menu.Item>
-      </Tooltip>
-    </Confirmation.Trigger>
-  );
-};
+//   return (
+//     <Confirmation.Trigger
+//       w={"full"}
+//       id={`${ID}-${deleteIds}`}
+//       title={`${t.delete_} ${routeTitle}`}
+//       description={t.msg_soft_delete}
+//       confirmLabel={`${t.delete_}`}
+//       onConfirm={onDeactivate}
+//       confirmButtonProps={{
+//         colorPalette: "gray",
+//         variant: "outline",
+//         color: "fg.error",
+//       }}
+//       loading={loading}
+//       disabled={disabled}
+//     >
+//       <Tooltip
+//         content={t.delete_}
+//         positioning={{
+//           placement: "right",
+//         }}
+//       >
+//         <Menu.Item
+//           value={"delete"}
+//           disabled={disabled}
+//           color={"fg.error"}
+//           transition={"200ms"}
+//         >
+//           <AppIconLucide icon={TrashIcon} />
+//           {t.delete_}
+//         </Menu.Item>
+//       </Tooltip>
+//     </Confirmation.Trigger>
+//   );
+// };
 
 // -----------------------------------------------------------------
 
@@ -576,9 +575,9 @@ const Data = (props: DataProps) => {
     pagination,
   } = useFetchData<DataInterface[]>({
     dummyData: DUMMY_ROLES,
-    // method:'POST',
+    // method: "POST",
     url: `${BASE_ENDPOINT}/get`,
-    params: {
+    payload: {
       search: filter?.search,
     },
     dependencies: [filter],
@@ -627,15 +626,15 @@ const Data = (props: DataProps) => {
       //     />
       //   ),
       // }),
-      (row) => ({
-        override: (
-          <Delete
-            deleteIds={[row.data.id]}
-            disabled={!!row.data.deletedAt}
-            routeTitle={routeTitle}
-          />
-        ),
-      }),
+      // (row) => ({
+      //   override: (
+      //     <Delete
+      //       deleteIds={[row.data.id]}
+      //       disabled={!!row.data.deletedAt}
+      //       routeTitle={routeTitle}
+      //     />
+      //   ),
+      // }),
     ] as RowOptionsTableOptionGenerator<DataInterface>[],
     batchOptions: [
       // (ids, { clearSelectedRows }) => ({
@@ -653,21 +652,21 @@ const Data = (props: DataProps) => {
       //     />
       //   ),
       // }),
-      (ids, { clearSelectedRows }) => ({
-        override: (
-          <Delete
-            deleteIds={ids}
-            clearSelectedRows={clearSelectedRows}
-            disabled={
-              isEmptyArray(ids) ||
-              data
-                ?.filter((item) => ids.includes(item.id))
-                .some((item) => !!item.deletedAt)
-            }
-            routeTitle={routeTitle}
-          />
-        ),
-      }),
+      // (ids, { clearSelectedRows }) => ({
+      //   override: (
+      //     <Delete
+      //       deleteIds={ids}
+      //       clearSelectedRows={clearSelectedRows}
+      //       disabled={
+      //         isEmptyArray(ids) ||
+      //         data
+      //           ?.filter((item) => ids.includes(item.id))
+      //           .some((item) => !!item.deletedAt)
+      //       }
+      //       routeTitle={routeTitle}
+      //     />
+      //   ),
+      // }),
     ] as BatchOptionsTableOptionGenerator[],
   };
 
