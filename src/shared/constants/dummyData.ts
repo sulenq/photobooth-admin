@@ -4,6 +4,7 @@ import {
   Product,
   Role,
   Template,
+  Tenant,
   TimeRule,
   Transaction,
   Voucher,
@@ -484,6 +485,36 @@ export const DUMMY_ROLES: Role[] = [
     id: "2",
     name: "Admin",
     createdAt: "2026-01-10T08:15:00.000Z",
+  },
+];
+
+export const DUMMY_TENANTS: Tenant[] = [
+  {
+    id: "1",
+    name: "PT Nusantara Sejahtera",
+    address: "Jl. Sudirman No. 10, Jakarta",
+    tenantCode: "TNT-001",
+    createdAt: "2026-01-01T08:00:00Z",
+    updatedAt: null,
+    deletedAt: null,
+  },
+  {
+    id: "2",
+    name: "CV Maju Jaya",
+    address: "Jl. Diponegoro No. 25, Bandung",
+    tenantCode: "TNT-002",
+    createdAt: "2026-01-05T09:30:00Z",
+    updatedAt: "2026-02-01T10:00:00Z",
+    deletedAt: null,
+  },
+  {
+    id: "3",
+    name: "PT Sinar Abadi",
+    address: "Jl. Ahmad Yani No. 50, Surabaya",
+    tenantCode: "TNT-003",
+    createdAt: "2026-01-10T07:45:00Z",
+    updatedAt: null,
+    deletedAt: "2026-03-01T12:00:00Z",
   },
 ];
 

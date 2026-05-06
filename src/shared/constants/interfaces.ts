@@ -185,6 +185,7 @@ export interface CUD {
 
 // Main Feature ----------------------------------------------------
 
+// Auth
 export interface Permission extends CUD {
   id: string;
   name: string;
@@ -193,6 +194,14 @@ export interface Permission extends CUD {
 export interface Role extends CUD {
   id: string;
   name: string;
+}
+
+// Tenant
+export interface Tenant extends CUD {
+  id: string;
+  name: string;
+  address: string;
+  tenantCode: string;
 }
 
 // Product
