@@ -6,6 +6,8 @@ export const AUTH_API_SIGNOUT = `/api/logout`; // POST
 
 // Featueres
 export const ROLE_BASE_ENDPOINT = `/roles`;
+export const PERMISSION_BASE_ENDPOINT = `/permissions`;
+export const TENANT_BASE_ENDPOINT = `/tenants`;
 export const PRODUCT_BASE_ENDPOINT = `/product`;
 export const TEMPLATE_BASE_ENDPOINT = `/template`;
 export const TIME_RULE_BASE_ENDPOINT = `/time-rule`;

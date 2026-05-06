@@ -78,7 +78,7 @@ export const OTHER_PRIVATE_NAV_GROUPS: Interface__NavGroup[] = [
               {
                 icon: UserCogIcon,
                 label: "User Role",
-                path: `/master-data/role`,
+                path: `/master-data/user-role`,
                 allowedRoles: [],
                 backPath: `/master-data`,
               },

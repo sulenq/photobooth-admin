@@ -185,6 +185,11 @@ export interface CUD {
 
 // Main Feature ----------------------------------------------------
 
+export interface Permission extends CUD {
+  id: string;
+  name: string;
+}
+
 export interface Role extends CUD {
   id: string;
   name: string;

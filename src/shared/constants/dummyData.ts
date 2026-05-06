@@ -461,6 +461,19 @@ export const dummyAllActivityLogs = [
 
 // -----------------------------------------------------------------
 
+export const DUMMY_PERMISSIONS: Role[] = [
+  {
+    id: "1",
+    name: "tenant.create",
+    createdAt: "2026-01-10T08:15:00.000Z",
+  },
+  {
+    id: "2",
+    name: "tenant.delete",
+    createdAt: "2026-01-10T08:15:00.000Z",
+  },
+];
+
 export const DUMMY_ROLES: Role[] = [
   {
     id: "1",
