@@ -590,6 +590,7 @@ export const DUMMY_TIME_RULE: TimeRule[] = [
 export const DUMMY_VOUCHERS: Voucher[] = [
   {
     id: "1",
+    tenantId: "1",
     name: "Voucher Promo Januari",
     budget: 10000000,
     value: 100000,
@@ -601,6 +602,7 @@ export const DUMMY_VOUCHERS: Voucher[] = [
   },
   {
     id: "2",
+    tenantId: "2",
     name: "Voucher Diskon Member",
     budget: 5000000,
     value: 50000,
@@ -612,6 +614,7 @@ export const DUMMY_VOUCHERS: Voucher[] = [
   },
   {
     id: "3",
+    tenantId: "3",
     name: "Voucher Event Spesial",
     budget: 20000000,
     value: 200000,
@@ -623,6 +626,7 @@ export const DUMMY_VOUCHERS: Voucher[] = [
   },
   {
     id: "4",
+    tenantId: "4",
     name: "Voucher Clearance",
     budget: 3000000,
     value: 30000,
