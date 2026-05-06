@@ -120,8 +120,8 @@ const BasicAuthForm = (props: any) => {
         url: signinAPI,
         data: payload,
         auth: {
-          username: "photobox",
-          password: "PhotoBox123@",
+          username: process.env.NEXT_PUBLIC_BASIC_AUTH_USER ?? "",
+          password: process.env.NEXT_PUBLIC_BASIC_AUTH_PASS ?? "",
         },
       };
       req({
