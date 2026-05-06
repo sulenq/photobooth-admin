@@ -37,11 +37,11 @@ export function clearUserData() {
   removeStorage("__user_data");
 }
 
-export const isPermissionAllowed = (permission: string) => {
-  const user = getUserData();
-  const userPermissions = user?.role?.permissions;
-  return userPermissions?.includes(permission);
-};
+// export const isPermissionAllowed = (permission: string) => {
+//   const user = getUserData();
+//   const userPermissions = user?.role?.permissions;
+//   return userPermissions?.includes(permission);
+// };
 
 export const isRoleAllowed = (role: string) => {
   const user = getUserData();
