@@ -43,15 +43,6 @@ export interface Interface__User extends CUD {
   // additional
   taskCount?: number;
 }
-export interface Role {
-  id: string;
-  name: string;
-  description: string;
-  permissions: string[];
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-}
 
 // Navs
 export interface Interface__NavGroup {
@@ -193,6 +184,11 @@ export interface CUD {
 // -----------------------------------------------------------------
 
 // Main Feature ----------------------------------------------------
+
+export interface Role extends CUD {
+  id: string;
+  name: string;
+}
 
 // Product
 export interface Product extends CUD {

@@ -9,11 +9,11 @@ import {
   View,
   useViewContext,
 } from "@/components/widgets/view";
+import { useLocale } from "@/contexts/useLocale";
+import { useThemeConfig } from "@/contexts/useThemeConfig";
 import { APP } from "@/shared/constants/_meta";
 import { OTHER_PRIVATE_NAV_GROUPS } from "@/shared/constants/navs";
 import { GAP, R_SPACING_MD } from "@/shared/constants/styles";
-import { useLocale } from "@/contexts/useLocale";
-import { useThemeConfig } from "@/contexts/useThemeConfig";
 import { formatAbsDate } from "@/shared/utils/formatter";
 import { usePathname } from "next/navigation";
 
